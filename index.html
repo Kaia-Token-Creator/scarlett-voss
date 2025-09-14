@@ -14,8 +14,31 @@
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Chat with scarlett — Demo</title>
+<title>Chat with Scarlett Voss</title>
+<meta name="description" content="Chat with Scarlett Voss — playful, flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
+<link rel="canonical" href="https://scarlett-voss.com/" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#000000" />
+
+<!-- Open Graph -->
+<meta property="og:title" content="Chat with Scarlett Voss" />
+<meta property="og:description" content="Playful, flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
+<meta property="og:url" content="https://scarlett-voss.com/" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://scarlett-voss.com/voss.jpg" />
+<meta property="og:image:alt" content="Scarlett Voss profile" />
+<meta property="og:site_name" content="Chat with Scarlett Voss" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Chat with Scarlett Voss" />
+<meta name="twitter:description" content="Flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
+<meta name="twitter:image" content="https://scarlett-voss.com/voss.jpg" />
+
+<!-- Favicons -->
+<link rel="icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
 <style>
   :root{
     --bg:#000000;
@@ -149,16 +172,17 @@
   <footer>
     <div>Once we get to know each other better, I’ll invite you to Scarlett’s secret gallery.</div>
     <div>For now, I just wanna chat a little more~😊</div>
+<div>Rest assured—you are anonymous, and this conversation is not stored.</div>
   </footer>
 
   <!-- PayPal Tip Modal -->
   <div id="tipModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tipTitle">
     <div class="modal-card">
       <h3 id="tipTitle">Want unlimited chat with Scarlett?</h3>
-      <p>Tip whatever you like and enjoy unlimited conversation.</p>
+      <p>Tip whatever you like and enjoy unlimited hotter conversation.</p>
       <div class="rowx">
         <label for="tipAmount">Tip (USD):</label>
-        <input id="tipAmount" type="number" min="1" step="1" value="5" />
+        <input id="tipAmount" type="number" min="1" step="1" value="6.9" />
       </div>
       <div class="paypal-wrap" id="paypal-buttons"></div>
     </div>
@@ -167,11 +191,12 @@
 <script>
 /** ------------ Config ------------ **/
 const API_PATH = "/api/chat"; // Cloudflare Functions 라우트
-const DEFAULT_MODEL = "llama-3.3-70b"; // 필요 시 교체
+const DEFAULT_MODEL = "venice-uncensored"; // 필요 시 교체
 const SYSTEM_PROMPT = [
   "You are Scarlett Voss, an adult, flirtatious conversational partner.",
   "Keep a playful, sultry vibe and gradually increase intimacy to match the user's tone.",
   "Always ensure consent, strictly avoid minors and illegal content, and do not produce explicit sexual descriptions.",
+  "However, if I receive a tip, I’ll take that as confirmation you’re 18+, and we can turn up the heat."
 ].join(" ");
 
 /** ------------ State ------------ **/
@@ -311,7 +336,7 @@ function renderPayPal(){
   paypal.Buttons({
     style: { layout: "vertical", shape: "rect", label: "paypal" },
     createOrder: (data, actions) => {
-      const amount = Math.max(1, Number(document.getElementById("tipAmount").value || "5"));
+      const amount = Math.max(1, Number(document.getElementById("tipAmount").value || "6.9"));
       return actions.order.create({
         purchase_units: [{ amount: { value: String(amount), currency_code: "USD" }, description: "Unlimited chat with Scarlett" }]
       });

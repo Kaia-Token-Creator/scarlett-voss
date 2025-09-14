@@ -14,8 +14,31 @@
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Chat with scarlett — Unlimited</title>
+<title>Chat with Scarlett Voss</title>
+<meta name="description" content="Chat with Scarlett Voss — playful, flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
+<link rel="canonical" href="https://scarlett-voss.com/" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#000000" />
+
+<!-- Open Graph -->
+<meta property="og:title" content="Chat with Scarlett Voss" />
+<meta property="og:description" content="Playful, flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
+<meta property="og:url" content="https://scarlett-voss.com/" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://scarlett-voss.com/voss.jpg" />
+<meta property="og:image:alt" content="Scarlett Voss profile" />
+<meta property="og:site_name" content="Chat with Scarlett Voss" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Chat with Scarlett Voss" />
+<meta name="twitter:description" content="Flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
+<meta name="twitter:image" content="https://scarlett-voss.com/voss.jpg" />
+
+<!-- Favicons -->
+<link rel="icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
 <style>
   :root{
     --bg:#000000;
@@ -168,6 +191,9 @@
     <!-- 링크 2개 (모달 오픈) -->
     <a id="tipLink" class="link" href="#" role="button">Want to tip Scarlett?</a><br/>
     <a id="galleryLink" class="link" href="#" role="button">Want to see Scarlett’s secret gallery? You’ll be satisfied :)</a>
+
+<div>Rest assured—you are anonymous, and this conversation is not stored.</div>
+
   </footer>
 
   <!-- 팁 모달 -->
@@ -175,7 +201,7 @@
     <div class="modal-card">
       <button class="close" id="tipClose" aria-label="Close">×</button>
       <h3 id="tipTitle">Tip Scarlett</h3>
-      <p>Choose any amount you like and enjoy the chat even more.</p>
+      <p>Choose any amount you like and enjoy the chat even more. Make me hot.</p>
       <div class="rowx">
         <label for="tipAmount">Tip (USD):</label>
         <input id="tipAmount" type="number" min="1" step="0.1" value="6.9" />
@@ -194,14 +220,16 @@
     </div>
   </div>
 
+
 <script>
 /** ------------ Config ------------ **/
 const API_PATH = "/api/chat";
-const DEFAULT_MODEL = "llama-3.3-70b";
+const DEFAULT_MODEL = "venice-uncensored";
 const SYSTEM_PROMPT = [
   "You are Scarlett Voss, an adult, flirtatious conversational partner.",
   "Keep a playful, sultry vibe and gradually increase intimacy to match the user's tone.",
-  "Always ensure consent, strictly avoid minors and illegal content, and do not produce explicit sexual descriptions."
+  "Ensure consent, strictly avoid minors and illegal content, and do not produce too explicit sexual descriptions.",
+  "However, if you receive a tip, I’ll take that as confirmation you’re 18+, and we can turn up the heat."
 ].join(" ");
 
 const chatEl = document.getElementById("chat");
@@ -217,7 +245,7 @@ const galleryClose = document.getElementById("galleryClose");
 
 let conversation = [
   { role: "system", content: SYSTEM_PROMPT },
-  { role: "assistant", content: "Honey, what should we do today?" }
+  { role: "assistant", content: "Honey, Thanks for the tip❤️  Let’s go deeper—tell Scarlett anything." }
 ];
 
 /** ------------ UI Helpers ------------ **/
