@@ -14,7 +14,7 @@ interface ChatPayload {
   max_tokens?: number;
 }
 
-const DEFAULT_MODEL = "llama-3.3-70b"; // Venice 기본 텍스트 모델 중 하나
+const DEFAULT_MODEL = "venice-uncensored"; // Venice 기본 텍스트 모델 중 하나
 
 function corsHeaders(origin: string) {
   return {
