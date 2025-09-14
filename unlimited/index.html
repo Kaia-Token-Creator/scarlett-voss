@@ -1,4 +1,4 @@
-<!-- /unlimited/index.html (입력창 슬림 + footer 항상 보임) -->
+<!-- /unlimited/index.html (footer에 secret gallery 안내 + $69 고정 결제 + 새창 오픈) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,8 +11,7 @@
     --bg:#000000;
     --hotpink:#ff1493;
     --text:#ff1493;
-    /* ▼ 입력창 고정 높이(필요 시 54~62px로 미세 조정) */
-    --composerH: 58px;
+    --composerH: 58px; /* 슬림 입력창 높이 */
   }
   *{box-sizing:border-box}
   body{
@@ -29,20 +28,17 @@
     letter-spacing:.3px;
   }
   footer{
-    color:#ff7abb; /* 핫핑크 톤 다운 */
+    color:#ff7abb;
     font-size:14px;
     line-height:1.5;
-    /* ▼ floating 입력창에 안 가리도록 위로 살짝 띄움 */
-    margin-bottom: calc(var(--composerH) + 8px);
+    margin-bottom: calc(var(--composerH) + 8px); /* floating composer에 안 가리도록 */
   }
 
   .shell{
-    height:calc(100dvh - 160px); /* header+footer 여유 유지 */
+    height:calc(100dvh - 160px);
     max-width:860px;
     margin:0 auto;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
+    display:flex; flex-direction:column; gap:12px;
     padding:0 12px 12px;
   }
 
@@ -58,7 +54,6 @@
   .chat{
     flex:1; overflow:auto;
     display:flex; flex-direction:column; gap:14px;
-    /* ▼ 입력창 높이만큼 하단 여유 확보(말풍선이 가려지지 않게) */
     padding:6px 4px calc(var(--composerH) + 16px);
   }
 
@@ -86,12 +81,12 @@
   .assistant .bubble{ background:var(--hotpink); color:#000; }
   .user .bubble{ background:#ffffff; color:#000; }
 
-  /* ▼ 입력창: floating 유지 + 슬림 높이 */
+  /* floating 입력창(슬림) */
   .composer{
     position:fixed; left:0; right:0; bottom:0;
-    height:var(--composerH);                  /* 고정 높이 */
+    height:var(--composerH);
     background:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 30%);
-    padding:6px 10px;                         /* 상하 여백 축소 */
+    padding:6px 10px;
     display:flex; align-items:center; justify-content:center;
     border-top:1px solid #222;
   }
@@ -102,20 +97,29 @@
   }
   #msg{
     flex:1; border:none; outline:none; background:transparent; color:#fff;
-    font-size:15px; line-height:1.2; padding:6px 8px;  /* 필드 높이 축소 */
+    font-size:15px; line-height:1.2; padding:6px 8px;
   }
   #send{
     background:var(--hotpink); color:#000; border:none; border-radius:999px;
-    font-weight:800; padding:8px 12px;                  /* 버튼 높이 축소 */
+    font-weight:800; padding:8px 12px;
     cursor:pointer;
   }
   #send:disabled{ opacity:.5; cursor:not-allowed; }
 
+  /* Tip / Gallery UI (footer 안) */
+  .tipbar{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center;
+    margin-top:8px;
+  }
+  .tip-note{ font-size:13px; color:#ffb0d1; }
+  .paypal-wrap{ min-height:40px; display:flex; align-items:center; }
   @media (max-width: 420px){
-    /* 아주 작은 화면에서 헤더/푸터 여백 살짝 줄여서 '한 화면' 적합 */
     header, footer{ padding:16px 12px; }
   }
 </style>
+
+<!-- PayPal JS SDK: client-id 고정 -->
+<script src="https://www.paypal.com/sdk/js?client-id=AW41UQ3EzJV10FZHqYPy8yqdlDbklB4VjuT6hzu7DVoS-G9cJgKx9nHfxCRZpVSgs1dczhkPj4oM0VXv&currency=USD"></script>
 </head>
 <body>
   <header>Chat with scarlett</header>
@@ -128,7 +132,7 @@
     <section id="chat" class="chat" aria-live="polite"></section>
   </main>
 
-  <!-- floating(고정) 입력창: 높이만 슬림 -->
+  <!-- floating 입력창 -->
   <div class="composer">
     <div class="inner">
       <input id="msg" type="text" placeholder="Type your message…" autocomplete="off" />
@@ -137,15 +141,20 @@
   </div>
 
   <footer>
-    <div>This fan-made experience lets you chat with a fictional character named Scarlett Voss.</div>
-    <div>No affiliation. For entertainment purposes only.</div>
+    <div>Want to tip Scarlett?</div>
+    <div class="tip-note">Wanna see Scarlett's secret gallery? You'll be satisfied. :)</div>
+    <div class="tipbar">
+      <!-- 고정 금액이므로 입력칸 제거 -->
+      <div id="paypal-buttons" class="paypal-wrap"></div>
+      <div class="tip-note">Fixed price: $69.00</div>
+    </div>
+    <div style="margin-top:6px; font-size:12px; color:#ff9cc3;">Thanks for supporting this fan-made experience.</div>
   </footer>
 
 <script>
 /** ------------ Config ------------ **/
 const API_PATH = "/api/chat";
 const DEFAULT_MODEL = "llama-3.3-70b";
-// 시스템 프롬프트(정책 준수 버전). 필요 시 문구만 수정하면 됨.
 const SYSTEM_PROMPT = [
   "You are Scarlett Voss, an adult, flirtatious conversational partner.",
   "Keep a playful, sultry vibe and gradually increase intimacy to match the user's tone.",
@@ -209,10 +218,7 @@ async function sendMessage(){
     const res = await fetch(API_PATH, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: DEFAULT_MODEL,
-        messages: conversation
-      })
+      body: JSON.stringify({ model: DEFAULT_MODEL, messages: conversation })
     });
 
     const data = await res.json();
@@ -250,6 +256,43 @@ clearEl.addEventListener("click", () => {
   ];
   addAssistant(conversation[1].content);
 });
+
+/** ------------ PayPal Buttons (footer) ------------ **/
+function tipThankYou(){
+  const cute = "Aww, thanks for the tip—I'll make it even more fun for you! 💕";
+  addAssistant(cute);
+  conversation.push({ role: "assistant", content: cute });
+}
+
+function renderPayPal(){
+  const wrap = document.getElementById("paypal-buttons");
+  if (!window.paypal) {
+    wrap.innerHTML = "<div style='color:#fff'>PayPal is not ready. Please refresh.</div>";
+    return;
+  }
+  paypal.Buttons({
+    style: { layout: "horizontal", shape: "rect", label: "paypal", height: 40 },
+    createOrder: (data, actions) => {
+      return actions.order.create({
+        purchase_units: [{
+          amount: { value: "69.00", currency_code: "USD" },
+          description: "Scarlett Secret Gallery Access ($69)"
+        }]
+      });
+    },
+    onApprove: async (data, actions) => {
+      try { await actions.order.capture(); } catch(e) { console.warn("PayPal capture error", e); }
+      tipThankYou();
+      // 새 창으로 시크릿 갤러리 열기
+      window.open("https://scarlett-voss.com/scarlettvosssecretgallery", "_blank", "noopener");
+    },
+    onError: (err) => {
+      console.error("PayPal error", err);
+      alert("Payment error. Please try again.");
+    }
+  }).render("#paypal-buttons");
+}
+document.addEventListener("DOMContentLoaded", renderPayPal);
 </script>
 </body>
 </html>

@@ -1,0 +1,29 @@
+<!-- /scarlettvosssecretgallery/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Scarlett's Secret Gallery</title>
+<meta name="theme-color" content="#000000" />
+<link rel="preload" as="image" href="/voss.jpg" />
+<style>
+  :root{ color-scheme: dark; }
+  html, body { height: 100%; }
+  body { margin: 0; background:#000; }
+
+  /* 이미지 전체 화면 */
+  .full {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+    display: block;
+    opacity: 0; animation: fade 350ms ease forwards;
+  }
+  @keyframes fade { to { opacity: 1; } }
+</style>
+</head>
+<body>
+  <img class="full" src="/voss.jpg" alt="Scarlett Voss" />
+</body>
+</html>
