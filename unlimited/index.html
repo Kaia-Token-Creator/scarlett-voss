@@ -1,4 +1,4 @@
-<!-- /unlimited/index.html : Footer 고정 + Composer를 항상 푸터 위에 -->
+<!-- /unlimited/index.html : Footer 고정 + Composer를 항상 푸터 위에 + 모달 스크롤 가능 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +8,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-LFMWVGLLZD');
 </script>
 
@@ -45,7 +44,7 @@
     --hotpink:#ff1493;
     --text:#ff1493;
     --composerH: 58px; /* 슬림 입력창 높이 */
-    --footerH: 0px;    /* CHANGED: JS로 푸터 실제 높이 주입 */
+    --footerH: 0px;    /* JS로 푸터 실제 높이 주입 */
   }
   *{box-sizing:border-box}
   body{
@@ -65,9 +64,9 @@
     color:#ff7abb;
     font-size:14px;
     line-height:1.5;
-    /* CHANGED: 항상 화면 맨 아래 고정 */
+    /* 항상 화면 맨 아래 고정 */
     position:fixed; left:0; right:0; bottom:0;
-    margin:0;                  /* 기존 margin-bottom 제거 효과 */
+    margin:0;
     background:#000; border-top:1px solid #222;
     z-index:5;
   }
@@ -92,7 +91,7 @@
   .chat{
     flex:1; overflow:auto;
     display:flex; flex-direction:column; gap:14px;
-    /* CHANGED: 초기값(아래 JS가 실제 값으로 덮어씀) */
+    /* 초기값(아래 JS가 실제 값으로 덮어씀) */
     padding:6px 4px calc(var(--composerH) + 16px);
   }
 
@@ -121,13 +120,13 @@
   /* floating 입력창(슬림) */
   .composer{
     position:fixed; left:0; right:0;
-    bottom:var(--footerH);           /* CHANGED: 푸터 높이만큼 위로 */
+    bottom:var(--footerH);           /* 푸터 높이만큼 위로 */
     height:var(--composerH);
     background:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 30%);
     padding:6px 10px;
     display:flex; align-items:center; justify-content:center;
     border-top:1px solid #222;
-    z-index:6; /* 푸터보다 살짝 위 */
+    z-index:6; /* 푸터보다 위 */
   }
   .composer .inner{
     width:100%; max-width:860px; height:100%;
@@ -149,10 +148,23 @@
   .link{ color:#ff9cc3; text-decoration:underline; font-weight:600; cursor:pointer; }
   .link:hover{ opacity:.85; }
 
-  /* 모달 */
-  .modal{ position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.7); z-index:50; padding:16px; }
+  /* 모달: 화면 초과 시 스크롤 가능하게 보강 */
+  .modal{
+    position:fixed; inset:0; display:none; place-items:center;
+    background:rgba(0,0,0,.7); z-index:50; padding:16px;
+    overflow:auto;                         /* ← 오버레이 자체 스크롤 */
+    -webkit-overflow-scrolling: touch;     /* iOS 부드러운 스크롤 */
+    touch-action: pan-y;                   /* 세로 드래그 보장 */
+  }
   .modal.show{ display:grid; }
-  .modal-card{ width:min(520px, 96vw); background:#0a0a0a; color:#fff; border:1px solid #222; border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.6); }
+  .modal-card{
+    width:min(520px, 96vw); background:#0a0a0a; color:#fff; border:1px solid #222; border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.6);
+    max-height: calc(100dvh - 32px);      /* ← 화면 넘지 않도록 제한 */
+    overflow:auto;                         /* ← 카드 내부 스크롤 */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior: contain;          /* 스크롤 바운스 전파 방지 */
+  }
   .modal h3{ margin:0 0 8px; color:var(--hotpink) }
   .modal p{ margin:0 0 12px; color:#e9e9e9 }
   .modal .rowx{ display:flex; gap:10px; align-items:center; margin:8px 0 16px }
@@ -192,10 +204,8 @@
     <a id="tipLink" class="link" href="#" role="button">Want to tip Scarlett?</a><br/>
     <a id="galleryLink" class="link" href="#" role="button">Want to see Scarlett’s secret gallery? You’ll be satisfied :)</a>
 
-<div>Rest assured—you are anonymous, and this conversation is not stored.</div>
-
-<div><a href="https://scarlett-voss.com/vpn" class="vpn-link">Want to explore the world anonymously?</a></div>
-
+    <div>Rest assured—you are anonymous, and this conversation is not stored.</div>
+    <div><a href="https://scarlett-voss.com/vpn" class="vpn-link">Want to explore the world anonymously?</a></div>
   </footer>
 
   <!-- 팁 모달 -->
@@ -221,7 +231,6 @@
       <div class="paypal-wrap" id="paypal-gallery-buttons"></div>
     </div>
   </div>
-
 
 <script>
 /** ------------ Config ------------ **/
