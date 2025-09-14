@@ -1,159 +1,171 @@
-<!-- /demo/index.html (입력창이 항상 푸터 위에 위치하도록 수정) -->
+<!-- /demo/index.html (입력창은 항상 푸터 위, 모달 화면 초과 시 스크롤 가능) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LFMWVGLLZD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LFMWVGLLZD"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LFMWVGLLZD');
+  </script>
 
-  gtag('config', 'G-LFMWVGLLZD');
-</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Chat with Scarlett Voss</title>
+  <meta name="description" content="Chat with Scarlett Voss — playful, flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
+  <link rel="canonical" href="https://scarlett-voss.com/" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
 
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Chat with Scarlett Voss</title>
-<meta name="description" content="Chat with Scarlett Voss — playful, flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
-<link rel="canonical" href="https://scarlett-voss.com/" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="theme-color" content="#000000" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="Chat with Scarlett Voss" />
+  <meta property="og:description" content="Playful, flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
+  <meta property="og:url" content="https://scarlett-voss.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://scarlett-voss.com/voss.jpg" />
+  <meta property="og:image:alt" content="Scarlett Voss profile" />
+  <meta property="og:site_name" content="Chat with Scarlett Voss" />
 
-<!-- Open Graph -->
-<meta property="og:title" content="Chat with Scarlett Voss" />
-<meta property="og:description" content="Playful, flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
-<meta property="og:url" content="https://scarlett-voss.com/" />
-<meta property="og:type" content="website" />
-<meta property="og:image" content="https://scarlett-voss.com/voss.jpg" />
-<meta property="og:image:alt" content="Scarlett Voss profile" />
-<meta property="og:site_name" content="Chat with Scarlett Voss" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Chat with Scarlett Voss" />
+  <meta name="twitter:description" content="Flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
+  <meta name="twitter:image" content="https://scarlett-voss.com/voss.jpg" />
 
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Chat with Scarlett Voss" />
-<meta name="twitter:description" content="Flirty conversation. Tip to unlock unlimited chat and the secret gallery." />
-<meta name="twitter:image" content="https://scarlett-voss.com/voss.jpg" />
+  <!-- Favicons -->
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-<!-- Favicons -->
-<link rel="icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <style>
+    :root{
+      --bg:#000000;
+      --hotpink:#ff1493;
+      --text:#ff1493;
+      /* ▼ 입력창(컴포저) 고정 높이: 필요시 52~64px 사이로 미세조정 */
+      --composerH: 58px;
+      /* ▼ JS가 푸터 실제 높이로 업데이트하는 변수 */
+      --footerH: 0px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans", "Noto Sans KR", sans-serif;
+      /* 기존 여유 유지 (필요시 조정 가능) */
+      padding-bottom: calc(var(--composerH) + 12px);
+    }
+    header, footer{
+      text-align:center;
+      padding:20px 16px;
+    }
+    header{
+      font-size:clamp(18px,3vw,28px);
+      font-weight:700;
+      letter-spacing:.3px;
+    }
+    footer{
+      color:#ff7abb;
+      font-size:14px;
+      line-height:1.5;
+      /* ▼ 항상 화면 맨 아래 고정 + 배경/경계선 */
+      position:fixed; left:0; right:0; bottom:0;
+      background:#000; border-top:1px solid #222;
+      z-index:5;
+    }
 
-<style>
-  :root{
-    --bg:#000000;
-    --hotpink:#ff1493;
-    --text:#ff1493;
-    /* ▼ 입력창(컴포저) 고정 높이: 필요시 52~64px 사이로 미세조정 */
-    --composerH: 58px;
-    /* ▼ JS가 푸터 실제 높이로 업데이트하는 변수 */
-    --footerH: 0px;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--bg); color:var(--text);
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans", "Noto Sans KR", sans-serif;
-    /* 기존 여유 유지 (필요시 조정 가능) */
-    padding-bottom: calc(var(--composerH) + 12px);
-  }
-  header, footer{
-    text-align:center;
-    padding:20px 16px;
-  }
-  header{
-    font-size:clamp(18px,3vw,28px);
-    font-weight:700;
-    letter-spacing:.3px;
-  }
-  footer{
-    color:#ff7abb;
-    font-size:14px;
-    line-height:1.5;
-    /* ▼ 항상 화면 맨 아래 고정 + 배경/경계선 */
-    position:fixed; left:0; right:0; bottom:0;
-    background:#000; border-top:1px solid #222;
-    z-index:5;
-  }
+    .shell{
+      height:calc(100dvh - 160px);
+      max-width:860px;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding:0 12px 12px;
+    }
 
-  .shell{
-    height:calc(100dvh - 160px);
-    max-width:860px;
-    margin:0 auto;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    padding:0 12px 12px;
-  }
+    .chat{
+      flex:1; overflow:auto;
+      display:flex; flex-direction:column; gap:14px;
+      /* ▼ 하단 여유는 JS가 덮어씀(초기값만) */
+      padding:6px 4px calc(var(--composerH) + 16px);
+    }
 
-  .chat{
-    flex:1; overflow:auto;
-    display:flex; flex-direction:column; gap:14px;
-    /* ▼ 하단 여유는 JS가 덮어씀(초기값만) */
-    padding:6px 4px calc(var(--composerH) + 16px);
-  }
+    .row{ display:flex; align-items:flex-start; gap:10px; width:100%; }
+    .row.assistant{ justify-content:flex-start; }
+    .row.user{ justify-content:flex-start; flex-direction:row-reverse; }
 
-  .row{ display:flex; align-items:flex-start; gap:10px; width:100%; }
-  .row.assistant{ justify-content:flex-start; }
-  .row.user{ justify-content:flex-start; flex-direction:row-reverse; }
+    .avatar{
+      width:38px; height:38px; border-radius:9999px; flex:0 0 38px; overflow:hidden;
+      display:grid; place-items:center; background:#ffffff; color:#000; font-weight:700; font-size:12px;
+      border:2px solid #ffffff22;
+    }
+    .avatar.assistant img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .avatar.user{ background:#fff; color:#000; }
 
-  .avatar{
-    width:38px; height:38px; border-radius:9999px; flex:0 0 38px; overflow:hidden;
-    display:grid; place-items:center; background:#ffffff; color:#000; font-weight:700; font-size:12px;
-    border:2px solid #ffffff22;
-  }
-  .avatar.assistant img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .avatar.user{ background:#fff; color:#000; }
+    .bubble{
+      max-width:min(85%, 680px);
+      padding:12px 14px; border-radius:16px; line-height:1.5; word-wrap:break-word; white-space:pre-wrap;
+      box-shadow:0 2px 8px rgba(0,0,0,.35);
+      border:1px solid #ffffff10;
+      font-size:16px;
+    }
+    .assistant .bubble{ background:var(--hotpink); color:#000; }
+    .user .bubble{ background:#ffffff; color:#000; }
 
-  .bubble{
-    max-width:min(85%, 680px);
-    padding:12px 14px; border-radius:16px; line-height:1.5; word-wrap:break-word; white-space:pre-wrap;
-    box-shadow:0 2px 8px rgba(0,0,0,.35);
-    border:1px solid #ffffff10;
-    font-size:16px;
-  }
-  .assistant .bubble{ background:var(--hotpink); color:#000; }
-  .user .bubble{ background:#ffffff; color:#000; }
+    /* ▼ 입력창을 한~두줄 높이로 슬림 + 푸터 위로 띄움(변수로 제어) */
+    .composer{
+      position:fixed; left:0; right:0;
+      bottom:var(--footerH);                 /* JS가 푸터 높이를 넣어줌 */
+      height:var(--composerH);               /* 고정 높이 */
+      background:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 30%);
+      padding:6px 10px;                      /* 상하 여백 축소 */
+      display:flex; align-items:center; justify-content:center;
+      border-top:1px solid #222;
+      z-index:6; /* 푸터보다 살짝 위 층에 두되, 겹치지 않게 bottom으로 올림 */
+    }
+    .composer .inner{
+      width:100%; max-width:860px; height:100%;
+      display:flex; align-items:center; gap:6px;
+      background:#0a0a0a; border:1px solid #222; border-radius:999px; padding:6px;
+    }
+    #msg{
+      flex:1; border:none; outline:none; background:transparent; color:#fff;
+      font-size:15px; line-height:1.2; padding:6px 8px;   /* 필드 높이 축소 */
+    }
+    #send{
+      background:var(--hotpink); color:#000; border:none; border-radius:999px;
+      font-weight:800; padding:8px 12px;                  /* 버튼 높이 축소 */
+      cursor:pointer;
+    }
+    #send:disabled{ opacity:.5; cursor:not-allowed; }
 
-  /* ▼ 입력창을 한~두줄 높이로 슬림 + 푸터 위로 띄움(변수로 제어) */
-  .composer{
-    position:fixed; left:0; right:0;
-    bottom:var(--footerH);                 /* JS가 푸터 높이를 넣어줌 */
-    height:var(--composerH);               /* 고정 높이 */
-    background:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 30%);
-    padding:6px 10px;                      /* 상하 여백 축소 */
-    display:flex; align-items:center; justify-content:center;
-    border-top:1px solid #222;
-    z-index:6; /* 푸터보다 살짝 위 층에 두되, 겹치지 않게 bottom으로 올림 */
-  }
-  .composer .inner{
-    width:100%; max-width:860px; height:100%;
-    display:flex; align-items:center; gap:6px;
-    background:#0a0a0a; border:1px solid #222; border-radius:999px; padding:6px;
-  }
-  #msg{
-    flex:1; border:none; outline:none; background:transparent; color:#fff;
-    font-size:15px; line-height:1.2; padding:6px 8px;   /* 필드 높이 축소 */
-  }
-  #send{
-    background:var(--hotpink); color:#000; border:none; border-radius:999px;
-    font-weight:800; padding:8px 12px;                  /* 버튼 높이 축소 */
-    cursor:pointer;
-  }
-  #send:disabled{ opacity:.5; cursor:not-allowed; }
+    /* 모달은 그대로 + 스크롤 허용 */
+    .modal{
+      position:fixed; inset:0; display:none; place-items:center;
+      background:rgba(0,0,0,.7); z-index:50; padding:16px;
+      overflow:auto;                         /* ← 모달 오버레이 자체 스크롤 허용 */
+      -webkit-overflow-scrolling: touch;     /* iOS 부드러운 스크롤 */
+    }
+    .modal.show{ display:grid; }
+    .modal-card{
+      width:min(520px, 96vw); background:#0a0a0a; color:#fff; border:1px solid #222; border-radius:16px;
+      padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.6);
+      max-height: calc(100dvh - 32px);      /* ← 화면보다 커지지 않도록 상한 */
+      overflow:auto;                         /* ← 카드 내부 스크롤 */
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;                   /* ← 세로 드래그 보장 */
+      overscroll-behavior: contain;          /* ← 바운스 전파 방지 */
+    }
+    .modal h3{ margin:0 0 8px; color:var(--hotpink) }
+    .modal p{ margin:0 0 12px; color:#e9e9e9 }
+    .modal .rowx{ display:flex; gap:10px; align-items:center; margin:8px 0 16px }
+    .modal input{ width:120px; padding:8px 10px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; }
+    .paypal-wrap{ margin-top:10px }
+  </style>
 
-  /* 모달은 그대로 */
-  .modal{ position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.7); z-index:50; padding:16px; }
-  .modal.show{ display:grid; }
-  .modal-card{ width:min(520px, 96vw); background:#0a0a0a; color:#fff; border:1px solid #222; border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.6); }
-  .modal h3{ margin:0 0 8px; color:var(--hotpink) }
-  .modal p{ margin:0 0 12px; color:#e9e9e9 }
-  .modal .rowx{ display:flex; gap:10px; align-items:center; margin:8px 0 16px }
-  .modal input{ width:120px; padding:8px 10px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; }
-  .paypal-wrap{ margin-top:10px }
-</style>
-
-<!-- PayPal JS SDK: client-id 교체 필요 -->
-<script src="https://www.paypal.com/sdk/js?client-id=AW41UQ3EzJV10FZHqYPy8yqdlDbklB4VjuT6hzu7DVoS-G9cJgKx9nHfxCRZpVSgs1dczhkPj4oM0VXv&currency=USD"></script>
+  <!-- PayPal JS SDK: client-id 교체 필요 -->
+  <script src="https://www.paypal.com/sdk/js?client-id=AW41UQ3EzJV10FZHqYPy8yqdlDbklB4VjuT6hzu7DVoS-G9cJgKx9nHfxCRZpVSgs1dczhkPj4oM0VXv&currency=USD"></script>
 </head>
 <body>
   <header>Chat with scarlett</header>
@@ -172,8 +184,8 @@
   <footer>
     <div>Once we get to know each other better, I’ll invite you to Scarlett’s secret gallery.</div>
     <div>For now, I just wanna chat a little more~😊</div>
-<div>Rest assured—you are anonymous, and this conversation is not stored.</div>
-<div><a href="https://scarlett-voss.com/vpn" class="vpn-link">Want to explore the world anonymously?</a></div>
+    <div>Rest assured—you are anonymous, and this conversation is not stored.</div>
+    <div><a href="https://scarlett-voss.com/vpn" class="vpn-link">Want to explore the world anonymously?</a></div>
   </footer>
 
   <!-- PayPal Tip Modal -->
@@ -251,8 +263,9 @@ function applyLayoutPadding(){
   const footerEl = document.querySelector('footer');
   const composerEl = document.querySelector('.composer');
 
-  const fh = footerEl ? footerEl.offsetHeight : 80;                       // 푸터 실제 높이
-  const ch = composerEl ? composerEl.offsetHeight : parseInt(getComputedStyle(document.documentElement).getPropertyValue('--composerH')) || 58;
+  const fh = footerEl ? footerEl.offsetHeight : 80; // 푸터 실제 높이
+  const ch = composerEl ? composerEl.offsetHeight :
+    parseInt(getComputedStyle(document.documentElement).getPropertyValue('--composerH')) || 58;
 
   // CSS 변수로 푸터 높이를 내려줘서 .composer가 bottom:var(--footerH)로 붙도록
   document.documentElement.style.setProperty('--footerH', fh + 'px');
