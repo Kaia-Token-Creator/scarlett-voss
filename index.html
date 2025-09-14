@@ -1,0 +1,301 @@
+<!-- /demo/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Chat with scarlett — Demo</title>
+<meta name="theme-color" content="#000000" />
+<style>
+  :root{
+    --bg:#000000;
+    --hotpink:#ff1493;
+    --text:#ff1493; /* 기본 글자 색(핫핑크) */
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans", "Noto Sans KR", sans-serif;
+  }
+  header, footer{
+    text-align:center;
+    padding:20px 16px;
+  }
+  header{
+    font-size:clamp(18px,3vw,28px);
+    font-weight:700;
+    letter-spacing:.3px;
+  }
+  footer{
+    color:#ff7abb; /* 핫핑크 톤 다운 */
+    font-size:14px;
+    line-height:1.5;
+  }
+
+  .shell{
+    height:calc(100dvh - 160px); /* header+footer 여유 */
+    max-width:860px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:0 12px 12px;
+  }
+
+  .chat{
+    flex:1; overflow:auto;
+    display:flex; flex-direction:column; gap:14px;
+    padding:6px 4px 80px; /* 입력창 공간 확보 */
+  }
+
+  .row{
+    display:flex; align-items:flex-start; gap:10px; width:100%;
+  }
+  .row.assistant{ justify-content:flex-start; }
+  .row.user{ justify-content:flex-start; flex-direction:row-reverse; }
+
+  .avatar{
+    width:38px; height:38px; border-radius:9999px; flex:0 0 38px; overflow:hidden;
+    display:grid; place-items:center; background:#ffffff; color:#000; font-weight:700; font-size:12px;
+    border:2px solid #ffffff22;
+  }
+  .avatar.assistant img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .avatar.user{ background:#fff; color:#000; }
+  .bubble{
+    max-width:min(85%, 680px);
+    padding:12px 14px; border-radius:16px; line-height:1.5; word-wrap:break-word; white-space:pre-wrap;
+    box-shadow:0 2px 8px rgba(0,0,0,.35);
+    border:1px solid #ffffff10;
+    font-size:16px;
+  }
+  .assistant .bubble{ background:var(--hotpink); color:#000; }
+  .user .bubble{ background:#ffffff; color:#000; }
+
+  .composer{
+    position:fixed; left:0; right:0; bottom:0;
+    background:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 30%);
+    padding:16px 12px 20px; display:flex; justify-content:center;
+  }
+  .composer .inner{
+    width:100%; max-width:860px; display:flex; gap:8px;
+    background:#0a0a0a; border:1px solid #222; border-radius:999px; padding:8px;
+  }
+  #msg{
+    flex:1; border:none; outline:none; background:transparent; color:#fff; font-size:16px; padding:8px 12px;
+  }
+  #send{
+    background:var(--hotpink); color:#000; border:none; border-radius:999px;
+    font-weight:800; padding:10px 18px; cursor:pointer;
+  }
+  #send:disabled{ opacity:.5; cursor:not-allowed; }
+
+  /* PayPal 모달 */
+  .modal{
+    position:fixed; inset:0; display:none; place-items:center;
+    background:rgba(0,0,0,.7); z-index:50; padding:16px;
+  }
+  .modal.show{ display:grid; }
+  .modal-card{
+    width:min(520px, 96vw); background:#0a0a0a; color:#fff; border:1px solid #222; border-radius:16px;
+    padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.6);
+  }
+  .modal h3{ margin:0 0 8px; color:var(--hotpink) }
+  .modal p{ margin:0 0 12px; color:#e9e9e9 }
+  .modal .rowx{ display:flex; gap:10px; align-items:center; margin:8px 0 16px }
+  .modal input{
+    width:120px; padding:8px 10px; border-radius:10px; border:1px solid #333; background:#111; color:#fff;
+  }
+  .paypal-wrap{ margin-top:10px }
+</style>
+
+<!-- PayPal JS SDK: client-id 교체 필요 -->
+<script src="https://www.paypal.com/sdk/js?client-id=PAYPAL_CLIENT_ID&currency=USD"></script>
+</head>
+<body>
+  <header>Chat with scarlett</header>
+
+  <main class="shell">
+    <section id="chat" class="chat" aria-live="polite"></section>
+  </main>
+
+  <div class="composer">
+    <div class="inner">
+      <input id="msg" type="text" placeholder="Type your message…" autocomplete="off" />
+      <button id="send">Send</button>
+    </div>
+  </div>
+
+  <footer>
+    <div>This fan-made experience lets you chat with a fictional character named Scarlett Voss.</div>
+    <div>No affiliation. For entertainment purposes only.</div>
+  </footer>
+
+  <!-- PayPal Tip Modal -->
+  <div id="tipModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tipTitle">
+    <div class="modal-card">
+      <h3 id="tipTitle">Want unlimited chat with Scarlett?</h3>
+      <p>Tip whatever you like and enjoy unlimited conversation.</p>
+      <div class="rowx">
+        <label for="tipAmount">Tip (USD):</label>
+        <input id="tipAmount" type="number" min="1" step="1" value="5" />
+      </div>
+      <div class="paypal-wrap" id="paypal-buttons"></div>
+    </div>
+  </div>
+
+<script>
+/** ------------ Config ------------ **/
+const API_PATH = "/api/chat"; // Cloudflare Functions 라우트
+const DEFAULT_MODEL = "llama-3.3-70b"; // 필요 시 교체
+// 시스템 프롬프트(안전 버전). 원문 요구에 맞게 조정하려면 여기 문구만 바꾸면 됨.
+const SYSTEM_PROMPT = [
+  "You are Scarlett Voss, an adult, flirtatious conversational partner.",
+  "Keep a playful, sultry vibe and gradually increase intimacy to match the user's tone.",
+  "Always ensure consent, strictly avoid minors and illegal content, and do not produce explicit sexual descriptions.",
+].join(" ");
+
+/** ------------ State ------------ **/
+const chatEl = document.getElementById("chat");
+const msgEl = document.getElementById("msg");
+const sendEl = document.getElementById("send");
+const tipModal = document.getElementById("tipModal");
+
+let userSends = 0;
+const USER_LIMIT = 3; // 데모 제한(유저 전송 기준)
+
+const conversation = [
+  { role: "system", content: SYSTEM_PROMPT },
+  { role: "assistant", content: "Honey, what should we do today?" } // 첫 메시지
+];
+
+/** ------------ UI Helpers ------------ **/
+function addAssistant(text){
+  const row = document.createElement("div");
+  row.className = "row assistant";
+  row.innerHTML = `
+    <div class="avatar assistant">
+      <img src="/voss.jpg" alt="Scarlett Voss" />
+    </div>
+    <div class="bubble">${escapeHtml(text)}</div>
+  `;
+  chatEl.appendChild(row);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function addUser(text){
+  const row = document.createElement("div");
+  row.className = "row user";
+  row.innerHTML = `
+    <div class="avatar user">You</div>
+    <div class="bubble">${escapeHtml(text)}</div>
+  `;
+  chatEl.appendChild(row);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/** ------------ Initial Render ------------ **/
+addAssistant(conversation[1].content);
+
+/** ------------ Send Logic ------------ **/
+async function sendMessage(){
+  const text = msgEl.value.trim();
+  if (!text) return;
+
+  // 데모 제한 체크 (전송 전 확인)
+  if (userSends >= USER_LIMIT) {
+    openTipModal();
+    return;
+  }
+
+  addUser(text);
+  conversation.push({ role: "user", content: text });
+  msgEl.value = "";
+  sendEl.disabled = true;
+
+  try{
+    const res = await fetch(API_PATH, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: DEFAULT_MODEL,
+        messages: conversation
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data?.ok) {
+      throw new Error((data && (data.error?.message || data.error)) || ("HTTP " + res.status));
+    }
+
+    const reply = data.content || "…";
+    addAssistant(reply);
+    conversation.push({ role: "assistant", content: reply });
+
+    userSends += 1;
+    if (userSends >= USER_LIMIT) {
+      // 다음 입력 시 모달 띄우도록 안내
+      setTimeout(openTipModal, 350);
+    }
+  }catch(err){
+    addAssistant("Oops, something went wrong. Please try again.");
+    console.error("chat error:", err);
+  }finally{
+    sendEl.disabled = false;
+    msgEl.focus();
+  }
+}
+
+msgEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+sendEl.addEventListener("click", sendMessage);
+
+/** ------------ Tip Modal / PayPal ------------ **/
+function openTipModal(){
+  tipModal.classList.add("show");
+  renderPayPal();
+}
+
+function renderPayPal(){
+  const wrap = document.getElementById("paypal-buttons");
+  if (wrap.dataset.rendered === "1") return;
+
+  if (!window.paypal) {
+    wrap.innerHTML = "<div style='color:#fff'>PayPal is not ready. Check your PAYPAL_CLIENT_ID.</div>";
+    return;
+  }
+
+  paypal.Buttons({
+    style: { layout: "vertical", shape: "rect", label: "paypal" },
+    createOrder: (data, actions) => {
+      const amount = Math.max(1, Number(document.getElementById("tipAmount").value || "5"));
+      return actions.order.create({
+        purchase_units: [{ amount: { value: String(amount), currency_code: "USD" }, description: "Unlimited chat with Scarlett" }]
+      });
+    },
+    onApprove: async (data, actions) => {
+      try {
+        await actions.order.capture();
+      } catch(e) {
+        console.warn("PayPal capture error", e);
+      }
+      window.location.href = "/unlimited/index.html";
+    },
+    onError: (err) => {
+      console.error("PayPal error", err);
+      alert("Payment error. Please try again.");
+    }
+  }).render("#paypal-buttons");
+
+  wrap.dataset.rendered = "1";
+}
+</script>
+</body>
+</html>
