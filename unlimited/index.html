@@ -1,4 +1,4 @@
-<!-- /unlimited/index.html (footer에 secret gallery 안내 + $69 고정 결제 + 새창 오픈) -->
+<!-- /unlimited/index.html : Footer 링크 → 모달 결제(자유 금액, 기본 6.9$), 성공 시 채팅에 감사 메시지 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,9 +57,7 @@
     padding:6px 4px calc(var(--composerH) + 16px);
   }
 
-  .row{
-    display:flex; align-items:flex-start; gap:10px; width:100%;
-  }
+  .row{ display:flex; align-items:flex-start; gap:10px; width:100%; }
   .row.assistant{ justify-content:flex-start; }
   .row.user{ justify-content:flex-start; flex-direction:row-reverse; }
 
@@ -106,19 +104,34 @@
   }
   #send:disabled{ opacity:.5; cursor:not-allowed; }
 
-  /* Tip / Gallery UI (footer 안) */
-  .tipbar{
-    display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center;
-    margin-top:8px;
+  /* 링크(밑줄) */
+  .link{ color:#ff9cc3; text-decoration:underline; font-weight:600; cursor:pointer; }
+  .link:hover{ opacity:.85; }
+
+  /* 모달 */
+  .modal{
+    position:fixed; inset:0; display:none; place-items:center;
+    background:rgba(0,0,0,.7); z-index:50; padding:16px;
   }
-  .tip-note{ font-size:13px; color:#ffb0d1; }
-  .paypal-wrap{ min-height:40px; display:flex; align-items:center; }
+  .modal.show{ display:grid; }
+  .modal-card{
+    width:min(520px, 96vw); background:#0a0a0a; color:#fff; border:1px solid #222; border-radius:16px;
+    padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.6);
+  }
+  .modal h3{ margin:0 0 8px; color:var(--hotpink) }
+  .modal p{ margin:0 0 12px; color:#e9e9e9 }
+  .modal .rowx{ display:flex; gap:10px; align-items:center; margin:8px 0 16px }
+  .modal input{
+    width:120px; padding:8px 10px; border-radius:10px; border:1px solid #333; background:#111; color:#fff;
+  }
+  .modal .close{ float:right; background:none; border:none; color:#aaa; font-size:20px; cursor:pointer; }
+  .paypal-wrap{ margin-top:10px; }
   @media (max-width: 420px){
     header, footer{ padding:16px 12px; }
   }
 </style>
 
-<!-- PayPal JS SDK: client-id 고정 -->
+<!-- PayPal JS SDK (client-id 고정) -->
 <script src="https://www.paypal.com/sdk/js?client-id=AW41UQ3EzJV10FZHqYPy8yqdlDbklB4VjuT6hzu7DVoS-G9cJgKx9nHfxCRZpVSgs1dczhkPj4oM0VXv&currency=USD"></script>
 </head>
 <body>
@@ -141,15 +154,37 @@
   </div>
 
   <footer>
-    <div>Want to tip Scarlett?</div>
-    <div class="tip-note">Wanna see Scarlett's secret gallery? You'll be satisfied. :)</div>
-    <div class="tipbar">
-      <!-- 고정 금액이므로 입력칸 제거 -->
-      <div id="paypal-buttons" class="paypal-wrap"></div>
-      <div class="tip-note">Fixed price: $69.00</div>
-    </div>
-    <div style="margin-top:6px; font-size:12px; color:#ff9cc3;">Thanks for supporting this fan-made experience.</div>
+    <!-- ▼ 이 한 줄만 ‘링크’ (밑줄) 로 보입니다 -->
+    <a id="tipLink" class="link" href="#" role="button">Want to tip Scarlett?</a><br/>
+    <!-- ▼ 새 링크(영어 문구) -->
+    <a id="galleryLink" class="link" href="#" role="button">
+      Want to see Scarlett’s secret gallery? You’ll be satisfied :)
+    </a>
   </footer>
+
+  <!-- 팁 모달 -->
+  <div id="tipModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tipTitle">
+    <div class="modal-card">
+      <button class="close" id="tipClose" aria-label="Close">×</button>
+      <h3 id="tipTitle">Tip Scarlett</h3>
+      <p>Choose any amount you like and enjoy the chat even more.</p>
+      <div class="rowx">
+        <label for="tipAmount">Tip (USD):</label>
+        <input id="tipAmount" type="number" min="1" step="0.1" value="6.9" />
+      </div>
+      <div class="paypal-wrap" id="paypal-buttons"></div>
+    </div>
+  </div>
+
+  <!-- 갤러리 결제 모달 (고정 $69) -->
+  <div id="galleryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="galleryTitle">
+    <div class="modal-card">
+      <button class="close" id="galleryClose" aria-label="Close">×</button>
+      <h3 id="galleryTitle">Unlock Secret Gallery ($69)</h3>
+      <p>Make a one-time payment to unlock Scarlett’s secret gallery. After payment, it opens in a new tab.</p>
+      <div class="paypal-wrap" id="paypal-gallery-buttons"></div>
+    </div>
+  </div>
 
 <script>
 /** ------------ Config ------------ **/
@@ -166,6 +201,13 @@ const chatEl = document.getElementById("chat");
 const msgEl = document.getElementById("msg");
 const sendEl = document.getElementById("send");
 const clearEl = document.getElementById("clear");
+const tipLink = document.getElementById("tipLink");
+const tipModal = document.getElementById("tipModal");
+const tipClose = document.getElementById("tipClose");
+/* New: gallery elements */
+const galleryLink = document.getElementById("galleryLink");
+const galleryModal = document.getElementById("galleryModal");
+const galleryClose = document.getElementById("galleryClose");
 
 let conversation = [
   { role: "system", content: SYSTEM_PROMPT },
@@ -257,42 +299,118 @@ clearEl.addEventListener("click", () => {
   addAssistant(conversation[1].content);
 });
 
-/** ------------ PayPal Buttons (footer) ------------ **/
+/** ------------ Tip Modal / PayPal ------------ **/
+function openTipModal(e){
+  e?.preventDefault?.();
+  tipModal.classList.add("show");
+  renderPayPal(); // 최초 렌더 또는 기존 버튼 재사용
+}
+function closeTipModal(){
+  tipModal.classList.remove("show");
+}
+
+tipLink.addEventListener("click", openTipModal);
+tipClose.addEventListener("click", closeTipModal);
+tipModal.addEventListener("click", (e) => {
+  if (e.target === tipModal) closeTipModal(); // 바깥 영역 클릭 닫기
+});
+
 function tipThankYou(){
-  const cute = "Aww, thanks for the tip—I'll make it even more fun for you! 💕";
-  addAssistant(cute);
-  conversation.push({ role: "assistant", content: cute });
+  const cuteEn = "Aww, thanks for the tip—I’ll make it even more fun for you! 💕";
+  addAssistant(cuteEn);
+  conversation.push({ role: "assistant", content: cuteEn });
 }
 
 function renderPayPal(){
   const wrap = document.getElementById("paypal-buttons");
+  if (wrap.dataset.rendered === "1") return;
+
   if (!window.paypal) {
     wrap.innerHTML = "<div style='color:#fff'>PayPal is not ready. Please refresh.</div>";
     return;
   }
+
   paypal.Buttons({
-    style: { layout: "horizontal", shape: "rect", label: "paypal", height: 40 },
+    style: { layout: "vertical", shape: "rect", label: "paypal", height: 40 },
     createOrder: (data, actions) => {
+      const amount = Math.max(1, Number(document.getElementById("tipAmount").value || "6.9"));
       return actions.order.create({
-        purchase_units: [{
-          amount: { value: "69.00", currency_code: "USD" },
-          description: "Scarlett Secret Gallery Access ($69)"
-        }]
+        purchase_units: [{ amount: { value: String(amount), currency_code: "USD" }, description: "Tip for Scarlett" }]
       });
     },
     onApprove: async (data, actions) => {
       try { await actions.order.capture(); } catch(e) { console.warn("PayPal capture error", e); }
+      closeTipModal();
       tipThankYou();
-      // 새 창으로 시크릿 갤러리 열기
-      window.open("https://scarlett-voss.com/scarlettvosssecretgallery", "_blank", "noopener");
     },
     onError: (err) => {
       console.error("PayPal error", err);
       alert("Payment error. Please try again.");
     }
   }).render("#paypal-buttons");
+
+  wrap.dataset.rendered = "1";
 }
-document.addEventListener("DOMContentLoaded", renderPayPal);
+
+/** ------------ Secret Gallery Modal / PayPal ($69 fixed) ------------ **/
+function openGalleryModal(e){
+  e?.preventDefault?.();
+  galleryModal.classList.add("show");
+  renderPayPalGallery();
+}
+function closeGalleryModal(){
+  galleryModal.classList.remove("show");
+}
+
+galleryLink.addEventListener("click", openGalleryModal);
+galleryClose.addEventListener("click", closeGalleryModal);
+galleryModal.addEventListener("click", (e) => {
+  if (e.target === galleryModal) closeGalleryModal(); // 바깥 영역 클릭 닫기
+});
+
+function galleryThankYou(){
+  const msg = "Thank you for unlocking my secret gallery—have fun exploring, cutie! 💕";
+  addAssistant(msg);
+  conversation.push({ role: "assistant", content: msg });
+}
+
+function renderPayPalGallery(){
+  const wrap = document.getElementById("paypal-gallery-buttons");
+  if (wrap.dataset.rendered === "1") return;
+
+  if (!window.paypal) {
+    wrap.innerHTML = "<div style='color:#fff'>PayPal is not ready. Please refresh.</div>";
+    return;
+  }
+
+  paypal.Buttons({
+    style: { layout: "vertical", shape: "rect", label: "paypal", height: 40 },
+    createOrder: (data, actions) => {
+      return actions.order.create({
+        purchase_units: [{
+          amount: { value: "69.00", currency_code: "USD" },
+          description: "Unlock Scarlett’s Secret Gallery ($69)"
+        }]
+      });
+    },
+    onApprove: async (data, actions) => {
+      try { await actions.order.capture(); } catch(e) { console.warn("PayPal capture error", e); }
+      closeGalleryModal();
+      // 새창으로 열기
+      const url = "https://scarlett-voss.com/scarlettvosssecretgallery";
+      const w = window.open(url, "_blank", "noopener");
+      if (w) { try { w.opener = null; } catch(_){} }
+      // 채팅에 감사 메시지 추가
+      galleryThankYou();
+    },
+    onError: (err) => {
+      console.error("PayPal error", err);
+      alert("Payment error. Please try again.");
+    }
+  }).render("#paypal-gallery-buttons");
+
+  wrap.dataset.rendered = "1";
+}
 </script>
 </body>
 </html>
