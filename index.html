@@ -1,12 +1,21 @@
-<!-- /demo/index.html -->
+<!-- /demo/index.html (입력창이 항상 푸터 위에 위치하도록 수정) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LFMWVGLLZD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LFMWVGLLZD');
+</script>
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Chat with scarlett — Demo</title>
 <meta name="theme-color" content="#000000" />
-<!-- 바꿀 부분만 발췌: 스타일(CSS) 교체/추가 -->
 <style>
   :root{
     --bg:#000000;
@@ -14,12 +23,14 @@
     --text:#ff1493;
     /* ▼ 입력창(컴포저) 고정 높이: 필요시 52~64px 사이로 미세조정 */
     --composerH: 58px;
+    /* ▼ JS가 푸터 실제 높이로 업데이트하는 변수 */
+    --footerH: 0px;
   }
   *{box-sizing:border-box}
   body{
     margin:0; background:var(--bg); color:var(--text);
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans", "Noto Sans KR", sans-serif;
-    /* ▼ 입력창에 가려서 푸터가 안 보이는 문제 방지(스크롤 끝에서 푸터가 완전히 올라오게) */
+    /* 기존 여유 유지 (필요시 조정 가능) */
     padding-bottom: calc(var(--composerH) + 12px);
   }
   header, footer{
@@ -35,6 +46,10 @@
     color:#ff7abb;
     font-size:14px;
     line-height:1.5;
+    /* ▼ 항상 화면 맨 아래 고정 + 배경/경계선 */
+    position:fixed; left:0; right:0; bottom:0;
+    background:#000; border-top:1px solid #222;
+    z-index:5;
   }
 
   .shell{
@@ -50,7 +65,7 @@
   .chat{
     flex:1; overflow:auto;
     display:flex; flex-direction:column; gap:14px;
-    /* ▼ 입력창 높이만큼 하단 여유(입력창이 떠있어도 마지막 말풍선/푸터가 보이게) */
+    /* ▼ 하단 여유는 JS가 덮어씀(초기값만) */
     padding:6px 4px calc(var(--composerH) + 16px);
   }
 
@@ -76,14 +91,16 @@
   .assistant .bubble{ background:var(--hotpink); color:#000; }
   .user .bubble{ background:#ffffff; color:#000; }
 
-  /* ▼ 입력창을 한~두줄 높이로 슬림하게 */
+  /* ▼ 입력창을 한~두줄 높이로 슬림 + 푸터 위로 띄움(변수로 제어) */
   .composer{
-    position:fixed; left:0; right:0; bottom:0;
+    position:fixed; left:0; right:0;
+    bottom:var(--footerH);                 /* JS가 푸터 높이를 넣어줌 */
     height:var(--composerH);               /* 고정 높이 */
     background:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 30%);
     padding:6px 10px;                      /* 상하 여백 축소 */
     display:flex; align-items:center; justify-content:center;
     border-top:1px solid #222;
+    z-index:6; /* 푸터보다 살짝 위 층에 두되, 겹치지 않게 bottom으로 올림 */
   }
   .composer .inner{
     width:100%; max-width:860px; height:100%;
@@ -111,7 +128,6 @@
   .modal input{ width:120px; padding:8px 10px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; }
   .paypal-wrap{ margin-top:10px }
 </style>
-
 
 <!-- PayPal JS SDK: client-id 교체 필요 -->
 <script src="https://www.paypal.com/sdk/js?client-id=AW41UQ3EzJV10FZHqYPy8yqdlDbklB4VjuT6hzu7DVoS-G9cJgKx9nHfxCRZpVSgs1dczhkPj4oM0VXv&currency=USD"></script>
@@ -152,7 +168,6 @@
 /** ------------ Config ------------ **/
 const API_PATH = "/api/chat"; // Cloudflare Functions 라우트
 const DEFAULT_MODEL = "llama-3.3-70b"; // 필요 시 교체
-// 시스템 프롬프트(안전 버전). 원문 요구에 맞게 조정하려면 여기 문구만 바꾸면 됨.
 const SYSTEM_PROMPT = [
   "You are Scarlett Voss, an adult, flirtatious conversational partner.",
   "Keep a playful, sultry vibe and gradually increase intimacy to match the user's tone.",
@@ -166,7 +181,7 @@ const sendEl = document.getElementById("send");
 const tipModal = document.getElementById("tipModal");
 
 let userSends = 0;
-const USER_LIMIT = 3; // 데모 제한(유저 전송 기준)
+const USER_LIMIT = 3;
 
 const conversation = [
   { role: "system", content: SYSTEM_PROMPT },
@@ -205,6 +220,23 @@ function escapeHtml(s){
 /** ------------ Initial Render ------------ **/
 addAssistant(conversation[1].content);
 
+/** ------------ 레이아웃: 컴포저를 항상 푸터 위로 ------------ **/
+function applyLayoutPadding(){
+  const footerEl = document.querySelector('footer');
+  const composerEl = document.querySelector('.composer');
+
+  const fh = footerEl ? footerEl.offsetHeight : 80;                       // 푸터 실제 높이
+  const ch = composerEl ? composerEl.offsetHeight : parseInt(getComputedStyle(document.documentElement).getPropertyValue('--composerH')) || 58;
+
+  // CSS 변수로 푸터 높이를 내려줘서 .composer가 bottom:var(--footerH)로 붙도록
+  document.documentElement.style.setProperty('--footerH', fh + 'px');
+
+  // 채팅 영역 하단 패딩 = 입력창 + 푸터 + 여유
+  if (chatEl) chatEl.style.paddingBottom = (fh + ch + 16) + 'px';
+}
+window.addEventListener('load', applyLayoutPadding);
+window.addEventListener('resize', applyLayoutPadding);
+
 /** ------------ Send Logic ------------ **/
 async function sendMessage(){
   const text = msgEl.value.trim();
@@ -242,7 +274,6 @@ async function sendMessage(){
 
     userSends += 1;
     if (userSends >= USER_LIMIT) {
-      // 다음 입력 시 모달 띄우도록 안내
       setTimeout(openTipModal, 350);
     }
   }catch(err){
