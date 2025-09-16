@@ -31,9 +31,8 @@
     background:var(--card); padding:12px; border:1px solid var(--border);
     border-radius:14px;
   }
-  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
   label{font-size:13px; color:var(--muted)}
-  input[type="file"], input[type="number"], input[type="text"], textarea, select, button{
+  input[type="file"], input[type="number"], textarea, select, button{
     width:100%; background:#0f0f0f; color:var(--hotpink); border:1px solid var(--border);
     border-radius:12px; padding:12px; outline:none;
   }
@@ -41,7 +40,6 @@
   .two-col{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
   @media (max-width:640px){ .two-col{grid-template-columns:1fr} }
 
-  .hint{font-size:12px; color:var(--muted)}
   .actions{display:flex; gap:10px; align-items:center}
   button.primary{
     background:var(--hotpink); color:#000; font-weight:700; border:0;
@@ -52,10 +50,8 @@
   .progress{height:6px; background:#1c1c1c; border-radius:999px; overflow:hidden}
   .bar{height:100%; width:0%; background:var(--hotpink); transition:width .2s ease}
 
-  .grid{
-    display:grid; gap:10px; margin:14px 0 40px;
-    grid-template-columns: repeat(auto-fill, minmax(140px,1fr));
-  }
+  /* 한 줄로 위에서 아래로 차곡차곡 */
+  .list{display:flex; flex-direction:column; gap:10px; margin:14px 0 40px;}
   .card{
     background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden;
     display:flex; flex-direction:column;
@@ -63,6 +59,8 @@
   .thumb{width:100%; aspect-ratio:1/1; object-fit:cover; display:block}
   .meta{padding:8px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; align-items:center}
   .dl{color:var(--hotpink); text-decoration:none; font-weight:700}
+  .err{color:#fff; background:#8b0000; border-left:4px solid #ff5555; padding:10px; border-radius:10px; font-size:12px}
+
   .toast{
     position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
     background:var(--hotpink); color:#000; padding:10px 14px; border-radius:999px;
@@ -75,19 +73,18 @@
   <div class="wrap">
     <header>
       <h1>uncensored image generator</h1>
-      <p class="sub">Upload an optional reference image, write a prompt, pick how many images (1–100), then generate.</p>
+      <p class="sub">Upload an optional reference image, write a prompt, set how many (1–100). Images will appear one by one.</p>
     </header>
 
     <form class="generator" id="genForm">
-      <div class="row">
+      <div>
         <label>Reference image (optional)</label>
         <input type="file" id="refFile" accept="image/*" />
-        <div class="hint">If provided, the reference will be edited per your prompt.</div>
       </div>
 
-      <div class="row">
+      <div>
         <label>Prompt</label>
-        <textarea id="prompt" placeholder="e.g., dreamy summer portrait, soft glow, shallow depth of field, 1:1"></textarea>
+        <textarea id="prompt" placeholder="e.g., dreamy summer portrait, soft glow, 1:1, subtle freckles"></textarea>
       </div>
 
       <div class="two-col">
@@ -109,12 +106,14 @@
         <div>
           <label>Image model</label>
           <input id="model" type="text" value="venice-sd35" />
-          <div class="hint">Note: <code>venice-uncensored</code> is a text model; use an image-capable model here (e.g., venice-sd35).</div>
         </div>
         <div>
-          <label>Site</label>
-          <input id="site" type="text" value="https://scarlett-voss.com" />
-          <div class="hint">CORS 허용 도메인(서버에서 ALLOWED_ORIGIN을 설정했다면 여기에 맞춰주세요)</div>
+          <label>Rate limit friendly</label>
+          <select id="pace">
+            <option value="1500">Normal (1.5s gap)</option>
+            <option value="300">Fast (0.3s gap)</option>
+            <option value="2500">Safe (2.5s gap)</option>
+          </select>
         </div>
       </div>
 
@@ -125,10 +124,10 @@
       <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
     </form>
 
-    <section class="grid" id="outGrid" aria-live="polite"></section>
+    <section class="list" id="outList" aria-live="polite"></section>
     <div class="toast" id="toast"></div>
 
-    <footer>Built on Venice API — private & uncensored. Be mindful of local laws & host policies.</footer>
+    <footer>Built on Venice API — private & uncensored. Check host/region policies.</footer>
   </div>
 
 <script>
@@ -139,8 +138,9 @@ const promptEl = $('#prompt');
 const countEl = $('#count');
 const sizeEl = $('#size');
 const modelEl = $('#model');
+const paceEl  = $('#pace');
 const bar = $('#bar');
-const grid = $('#outGrid');
+const list = $('#outList');
 const toast = $('#toast');
 const runBtn = $('#runBtn');
 
@@ -149,10 +149,7 @@ function showToast(msg){
   toast.style.display = 'block';
   setTimeout(()=> toast.style.display='none', 2400);
 }
-
-function setProgress(p){
-  bar.style.width = Math.max(0, Math.min(100, p)) + '%';
-}
+function setProgress(p){ bar.style.width = Math.max(0, Math.min(100, p)) + '%'; }
 
 async function fileToDataURL(file){
   return new Promise((resolve,reject)=>{
@@ -175,11 +172,64 @@ function addImageCard(src, index){
   meta.innerHTML = `<span>#${index+1}</span><a class="dl" download="gen_${Date.now()}_${index+1}.png" href="${src}">save</a>`;
   card.appendChild(img);
   card.appendChild(meta);
-  grid.appendChild(card);
+  list.appendChild(card);
+}
+
+function addErrorCard(message, index){
+  const card = document.createElement('div');
+  card.className = 'card';
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.innerHTML = `<span>#${index+1}</span><span>failed</span>`;
+  const err = document.createElement('div');
+  err.className = 'err';
+  err.textContent = (''+message).slice(0,250);
+  card.appendChild(meta);
+  card.appendChild(err);
+  list.appendChild(card);
+}
+
+async function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+// 백엔드: 항상 1장만 반환하도록 만들어 놓았음
+async function generateOne({prompt, w, h, model, referenceImageData, signal}){
+  const res = await fetch('/api/image', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ prompt, width:w, height:h, model, referenceImageData }),
+    signal
+  });
+  if (!res.ok){
+    const t = await res.text().catch(()=> '');
+    throw new Error(`Server ${res.status}: ${t}`);
+  }
+  const data = await res.json();
+  if (!data.ok || !data.image){
+    throw new Error(data.error || 'no image returned');
+  }
+  return data.image;
+}
+
+// 재시도(3회, 지수 백오프)
+async function generateWithRetry(opts, attempt=1){
+  try{
+    return await generateOne(opts);
+  }catch(e){
+    const msg = (e && e.message) ? e.message : String(e);
+    // 4xx 중 429만 재시도, 5xx/네트워크 오류 재시도
+    const retriable = /429|5\d\d|network|timeout|fetch/i.test(msg);
+    if (retriable && attempt < 3){
+      const delay = 600 * Math.pow(2, attempt-1); // 600ms, 1200ms
+      await sleep(delay);
+      return await generateWithRetry(opts, attempt+1);
+    }
+    throw e;
+  }
 }
 
 form.addEventListener('submit', async (e)=>{
   e.preventDefault();
+
   const prompt = (promptEl.value || '').trim();
   if (!prompt){ showToast('프롬프트를 입력해 주세요.'); return; }
 
@@ -189,56 +239,36 @@ form.addEventListener('submit', async (e)=>{
 
   const [w,h] = (sizeEl.value || '1024x1024').split('x').map(Number);
   const model = (modelEl.value || 'venice-sd35').trim();
+  const gapMs = parseInt(paceEl.value, 10) || 1500;
 
   runBtn.disabled = true;
   setProgress(0);
-  grid.innerHTML = '';
+  // 기존 결과 유지하고 추가로 아래에 이어붙이려면 다음 줄을 주석 처리
+  list.innerHTML = '';
 
-  // Prepare reference dataURL if present
+  // 참고 이미지 dataURL 준비(있을 때만)
   let referenceImageData = '';
   const f = refFile.files?.[0];
   if (f) {
-    try {
-      referenceImageData = await fileToDataURL(f);
-    } catch(e) {
-      console.error(e);
-      showToast('참고 이미지 읽기 실패');
-    }
+    try { referenceImageData = await fileToDataURL(f); }
+    catch { showToast('참고 이미지 읽기 실패'); }
   }
 
   try{
-    // POST once (server will fan-out if generate, or loop if edit)
-    const res = await fetch('/api/image', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        prompt, count: n, model,
-        width: w, height: h,
-        referenceImageData
-      })
-    });
-
-    if (!res.ok){
-      const t = await res.text().catch(()=> '');
-      throw new Error('Server error: '+ res.status + ' ' + t);
+    for (let i=0; i<n; i++){
+      // 순차 호출: 한 장 끝나야 다음 장 요청
+      try{
+        const imageData = await generateWithRetry({ prompt, w, h, model, referenceImageData });
+        addImageCard(imageData, i);
+      }catch(err){
+        console.error(err);
+        addErrorCard(err?.message || err, i);
+      }
+      setProgress(Math.round(((i+1)/n)*100));
+      if (i < n-1) await sleep(gapMs); // 레이트리밋 완화
     }
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'Unknown error');
-
-    const images = Array.isArray(data.images) ? data.images : [];
-    // Render in order
-    for (let i=0; i<images.length; i++){
-      addImageCard(images[i], i);
-      setProgress(Math.round(((i+1)/images.length)*100));
-      await new Promise(r=> setTimeout(r, 40)); // tiny yield for paint
-    }
-    if (images.length === 0) showToast('이미지 없음. 프롬프트/모델을 확인하세요.');
-  }catch(err){
-    console.error(err);
-    showToast('실패: ' + (err?.message || err));
-  }finally{
+  } finally {
     runBtn.disabled = false;
-    setProgress(100);
     setTimeout(()=> setProgress(0), 800);
   }
 });
