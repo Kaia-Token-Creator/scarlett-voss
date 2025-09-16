@@ -2,38 +2,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LFMWVGLLZD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LFMWVGLLZD"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LFMWVGLLZD');
+  </script>
 
-  gtag('config', 'G-LFMWVGLLZD');
-</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Scarlett's Secret Gallery</title>
+  <meta name="theme-color" content="#000000" />
+  <link rel="preload" as="image" href="/voss.jpg" />
 
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Scarlett's Secret Gallery</title>
-<meta name="theme-color" content="#000000" />
-<link rel="preload" as="image" href="/voss.jpg" />
-<style>
-  :root{ color-scheme: dark; }
-  html, body { height: 100%; }
-  body { margin: 0; background:#000; }
+  <style>
+    :root { color-scheme: dark; --hotpink:#ff1493; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background:#000;
+      color:#fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans", "Noto Sans KR", sans-serif;
+      line-height: 1;
+    }
 
-  /* 이미지 전체 화면 */
-  .full {
-    position: fixed; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: cover; object-position: center;
-    display: block;
-    opacity: 0; animation: fade 350ms ease forwards;
-  }
-  @keyframes fade { to { opacity: 1; } }
-</style>
+    /* 헤더 */
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(0,0,0,0.9);
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nsfw {
+      color: var(--hotpink);
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      margin: 0 0 6px 0;
+    }
+    .welcome {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+      color: #fff;
+    }
+
+    /* 컨텐츠 스택: 이미지와 광고 모두 여백 없이 꽉 차게 */
+    .stack {
+      display: block;
+    }
+    .stack > * {
+      display:block;
+      margin:0;
+      padding:0;
+      border:0;
+    }
+
+    /* 모든 이미지: 좌우 꽉 차고, 상하 여백 없음 */
+    img.fullwidth {
+      width: 100vw;      /* 진짜 화면 가로에 꽉 */
+      max-width: 100vw;
+      height: auto;      /* 비율 유지 */
+      display: block;    /* 인라인 갭 제거 */
+      margin: 0;         /* 여백 제거 */
+    }
+
+    /* 광고 컨테이너도 풀폭 */
+    .ad-wrap {
+      width: 100vw;
+      max-width: 100vw;
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 첫 진입 페이드 인 (가벼운 연출) */
+    .fadein { opacity: 0; animation: fade 300ms ease forwards; }
+    @keyframes fade { to { opacity:1; } }
+
+    /* 탭바/노치에 닿지 않게 살짝 안전패딩 (시각적 여백은 0 유지) */
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
+  </style>
 </head>
 <body>
-  <img class="full" src="/voss.jpg" alt="Scarlett Voss" />
+  <header>
+    <p class="nsfw">NSFW warning :)</p>
+    <h1 class="welcome">Welcome to Scarlett Voss' Secret Gallery</h1>
+  </header>
+
+  <main id="app" class="stack safe-bottom">
+    <!-- 1) 고정 첫 이미지: voss.jpg -->
+    <img class="fullwidth fadein" src="/voss.jpg" alt="Scarlett Voss cover" loading="eager" decoding="async" />
+
+    <!-- 2) 이하 이미지 & 광고는 JS가 채움 -->
+  </main>
+
+  <script>
+    /**
+     * ⚠️ 이미지 자동 나열 방법
+     * - 같은 폴더(/scarlettvosssecretgallery/)에 `manifest.json` 파일을 두고,
+     *   그 안에 이미지 파일명을 배열로 넣으세요. (예시는 아래)
+     * - 새로운 이미지를 추가할 때 manifest.json만 갱신하면 페이지가 자동으로 업데이트됩니다.
+     *
+     * manifest.json 예시:
+     *   { "images": [
+     *      "001.jpg", "002.jpg", "003.png", "004.webp"
+     *   ]}
+     *
+     * 파일명은 "이름순"으로 정렬합니다(자연정렬). 이미 정렬된 상태로 저장해도 되고,
+     * 아래에서 한 번 더 정렬합니다.
+     */
+
+    // 광고 스니펫들: 대부분의 광고 네트워크는 "각 배치마다 고유한 div id"를 요구합니다.
+    // 현재 네가 준 스니펫은 하나의 zone id를 가리키므로, "여러 개" 삽입하려면
+    // 보통은 광고 플랫폼에서 추가 배치(새 ID)를 발급받아야 한다는 점 참고!
+    // 만약 동일 스니펫을 반복 사용해도 되는 형태라면 아래 배열에 같은 스니펫을 여러 번 넣으면 됩니다.
+    const AD_SNIPPETS = [
+`<script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+<div id="container-66ed6edc85e36ee723f8c118d340127f"></div>`
+    ];
+
+    // 몇 장마다 광고를 넣을지 (1이면 모든 이미지 사이에 삽입)
+    const AD_EVERY_N_IMAGES = 1;
+
+    // manifest.json을 불러오고, 이미지들을 렌더링
+    (async function init() {
+      const app = document.getElementById('app');
+
+      let files = [];
+      try {
+        const res = await fetch('./manifest.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error('manifest fetch failed');
+        const data = await res.json();
+        files = Array.isArray(data.images) ? data.images.slice() : [];
+      } catch (e) {
+        console.error('Failed to load manifest.json. Provide /scarlettvosssecretgallery/manifest.json', e);
+        // 안전한 폴백: manifest 없으면 비우고 조용히 종료
+      }
+
+      if (!files.length) return;
+
+      // 이미지 확장자만 필터 (jpg/jpeg/png/webp/avif/gif)
+      const exts = /\.(jpg|jpeg|png|webp|avif|gif)$/i;
+      files = files.filter(name => exts.test(name));
+
+      // 이름순(자연 정렬 흉내): 숫자 포함 이름을 올바르게 정렬
+      files.sort((a,b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+      // 렌더링: 이미지 1개 -> 광고 1개(설정에 따라) -> 이미지 1개 -> ...
+      const frag = document.createDocumentFragment();
+
+      const makeImg = (src) => {
+        const img = document.createElement('img');
+        img.className = 'fullwidth fadein';
+        img.src = `./${encodeURI(src)}`;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.alt = src;
+        return img;
+      };
+
+      const makeAd = (index) => {
+        const adWrap = document.createElement('div');
+        adWrap.className = 'ad-wrap';
+        // 스니펫 순환 사용 (여러 개 발급받았다면 배열에 나열만 해두면 됨)
+        const snippet = AD_SNIPPETS[index % AD_SNIPPETS.length];
+        // 스니펫을 그대로 삽입
+        adWrap.innerHTML = snippet;
+        return adWrap;
+      };
+
+      files.forEach((name, i) => {
+        // 이미지
+        frag.appendChild(makeImg(name));
+
+        // 광고 (마지막 뒤에는 안 넣고 싶으면 조건을 바꾸세요)
+        const shouldInsertAd = ((i !== files.length - 1) && ((i + 1) % AD_EVERY_N_IMAGES === 0));
+        if (shouldInsertAd) frag.appendChild(makeAd(i));
+      });
+
+      app.appendChild(frag);
+    })();
+  </script>
 </body>
 </html>
