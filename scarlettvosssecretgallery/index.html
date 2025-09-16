@@ -18,162 +18,141 @@
   <link rel="preload" as="image" href="/voss.jpg" />
 
   <style>
-    :root { color-scheme: dark; --hotpink:#ff1493; }
-    * { box-sizing: border-box; }
+    :root{ color-scheme: dark; }
     html, body { height: 100%; }
-    body {
-      margin: 0;
-      background:#000;
-      color:#fff;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans", "Noto Sans KR", sans-serif;
-      line-height: 1;
+    body { margin: 0; background:#000; }
+    /* 상단 경고/웰컴 */
+    header{
+      text-align:center; padding:14px 10px 10px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Noto Sans KR", sans-serif;
+      color:#ff1493;
     }
+    header .nsfw{ font-weight:700; font-size:18px; margin:0 0 6px 0; }
+    header .welcome{ color:#fff; font-weight:600; font-size:16px; margin:0; }
+    /* 스택 (이미지/광고) - 여백 0 */
+    .stack{ line-height:0; }
+    .stack > *{ margin:0; padding:0; border:0; }
+    img.hero, img.gallery{
+      display:block; width:100%; height:auto; object-fit:cover; object-position:center;
+      opacity:0; animation:fade 350ms ease forwards;
+    }
+    /* 광고 컨테이너도 여백 0 */
+    .adblock{ display:block; width:100%; line-height:0; background:#000; }
+    .adblock > div{ margin:0; padding:0; }
 
-    /* 헤더 */
-    header {
-      position: sticky; top: 0; z-index: 10;
-      background: rgba(0,0,0,0.9);
-      -webkit-backdrop-filter: blur(4px);
-      backdrop-filter: blur(4px);
-      padding: 12px 16px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .nsfw {
-      color: var(--hotpink);
-      font-weight: 800;
-      font-size: 14px;
-      letter-spacing: .3px;
-      text-transform: uppercase;
-      margin: 0 0 6px 0;
-    }
-    .welcome {
-      font-size: 18px;
-      font-weight: 700;
-      margin: 0;
-      color: #fff;
-    }
-
-    /* 컨텐츠 스택: 이미지와 광고 모두 여백 없이 꽉 차게 */
-    .stack {
-      display: block;
-    }
-    .stack > * {
-      display:block;
-      margin:0;
-      padding:0;
-      border:0;
-    }
-
-    /* 모든 이미지: 좌우 꽉 차고, 상하 여백 없음 */
-    img.fullwidth {
-      width: 100vw;      /* 진짜 화면 가로에 꽉 */
-      max-width: 100vw;
-      height: auto;      /* 비율 유지 */
-      display: block;    /* 인라인 갭 제거 */
-      margin: 0;         /* 여백 제거 */
-    }
-
-    /* 광고 컨테이너도 풀폭 */
-    .ad-wrap {
-      width: 100vw;
-      max-width: 100vw;
-      display: block;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* 첫 진입 페이드 인 (가벼운 연출) */
-    .fadein { opacity: 0; animation: fade 300ms ease forwards; }
     @keyframes fade { to { opacity:1; } }
-
-    /* 탭바/노치에 닿지 않게 살짝 안전패딩 (시각적 여백은 0 유지) */
-    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
   </style>
 </head>
 <body>
   <header>
     <p class="nsfw">NSFW warning :)</p>
-    <h1 class="welcome">Welcome to Scarlett Voss' Secret Gallery</h1>
+    <p class="welcome">Welcome to Scarlett voss' Secret gallary</p>
   </header>
 
-  <main id="app" class="stack safe-bottom">
-    <!-- 1) 고정 첫 이미지: voss.jpg -->
-    <img class="fullwidth fadein" src="/voss.jpg" alt="Scarlett Voss cover" loading="eager" decoding="async" />
+  <!-- 상단 voss.jpg 히어로 이미지 -->
+  <img class="hero" src="/voss.jpg" alt="Scarlett Voss" width="1920" height="1080" />
 
-    <!-- 2) 이하 이미지 & 광고는 JS가 채움 -->
+  <!-- 갤러리 & 광고 (여백 0, 이미지 맞춤) -->
+  <main class="stack">
+    <!-- 1.jpg -->
+    <img class="gallery" src="1.jpg" alt="Gallery image 1" loading="lazy" />
+    <!-- AD between 1 and 2 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 2.jpg -->
+    <img class="gallery" src="2.jpg" alt="Gallery image 2" loading="lazy" />
+    <!-- AD between 2 and 3 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 3.jpg -->
+    <img class="gallery" src="3.jpg" alt="Gallery image 3" loading="lazy" />
+    <!-- AD between 3 and 4 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 4.jpg -->
+    <img class="gallery" src="4.jpg" alt="Gallery image 4" loading="lazy" />
+    <!-- AD between 4 and 5 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 5.jpg -->
+    <img class="gallery" src="5.jpg" alt="Gallery image 5" loading="lazy" />
+    <!-- AD between 5 and 6 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 6.jpg -->
+    <img class="gallery" src="6.jpg" alt="Gallery image 6" loading="lazy" />
+    <!-- AD between 6 and 7 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 7.jpg -->
+    <img class="gallery" src="7.jpg" alt="Gallery image 7" loading="lazy" />
+    <!-- AD between 7 and 8 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 8.jpg -->
+    <img class="gallery" src="8.jpg" alt="Gallery image 8" loading="lazy" />
+    <!-- AD between 8 and 9 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 9.jpg -->
+    <img class="gallery" src="9.jpg" alt="Gallery image 9" loading="lazy" />
+    <!-- AD between 9 and 10 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 10.jpg -->
+    <img class="gallery" src="10.jpg" alt="Gallery image 10" loading="lazy" />
+    <!-- AD between 10 and 11 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 11.jpg -->
+    <img class="gallery" src="11.jpg" alt="Gallery image 11" loading="lazy" />
+    <!-- AD between 11 and 12 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 12.jpg -->
+    <img class="gallery" src="12.jpg" alt="Gallery image 12" loading="lazy" />
+    <!-- AD between 12 and 13 -->
+    <section class="adblock">
+      <script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
+      <div id="container-66ed6edc85e36ee723f8c118d340127f"></div>
+    </section>
+
+    <!-- 13.jpg -->
+    <img class="gallery" src="13.jpg" alt="Gallery image 13" loading="lazy" />
+    <!-- 마지막 이미지 뒤에는 광고 없음 (요청: '사진과 사진의 사이') -->
   </main>
-
-<script>
-  // === 광고 설정 (필수) ===
-  const AD_SRC = "//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js";
-  const AD_CONTAINER_BASE_ID = "container-66ed6edc85e36ee723f8c118d340127f";
-
-  // 몇 장마다 광고를 넣을지 (1이면 모든 이미지 사이에 삽입)
-  const AD_EVERY_N_IMAGES = 1;
-
-  (async function init() {
-    const app = document.getElementById('app');
-
-    let files = [];
-    try {
-      const res = await fetch('./manifest.json', { cache: 'no-store' });
-      if (!res.ok) throw new Error('manifest fetch failed');
-      const data = await res.json();
-      files = Array.isArray(data.images) ? data.images.slice() : [];
-    } catch (e) {
-      console.error('Failed to load manifest.json. Provide /scarlettvosssecretgallery/manifest.json', e);
-    }
-
-    if (!files.length) return;
-
-    const exts = /\.(jpg|jpeg|png|webp|avif|gif)$/i;
-    files = files.filter(name => exts.test(name));
-    files.sort((a,b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
-
-    const frag = document.createDocumentFragment();
-
-    const makeImg = (src) => {
-      const img = document.createElement('img');
-      img.className = 'fullwidth fadein';
-      img.src = `./${encodeURI(src)}`;
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      img.alt = src;
-      return img;
-    };
-
-    // ★ 중요: 문자열로 </script>를 넣지 말고 엘리먼트를 생성하세요.
-    const makeAd = (index) => {
-      const wrap = document.createElement('div');
-      wrap.className = 'ad-wrap';
-
-      // ⚠️ 보통 광고 네트워크는 container id가 "고유"해야 합니다.
-      // 동일 placement를 여러 번 쓰면 하나만 뜰 수 있어요.
-      // 가능하면 네트워크에서 여러 placement/container를 발급받으세요.
-      const container = document.createElement('div');
-      // 고유 id로 바꿔줌 (네트워크가 허용할 때만 다중 게재 가능)
-      container.id = `${AD_CONTAINER_BASE_ID}-${index}`;
-      wrap.appendChild(container);
-
-      const s = document.createElement('script');
-      s.async = true;
-      s.setAttribute('data-cfasync', 'false');
-      s.src = AD_SRC;
-      wrap.appendChild(s);
-
-      return wrap;
-    };
-
-    files.forEach((name, i) => {
-      frag.appendChild(makeImg(name));
-
-      const shouldInsertAd = ((i !== files.length - 1) && ((i + 1) % AD_EVERY_N_IMAGES === 0));
-      if (shouldInsertAd) frag.appendChild(makeAd(i + 1));
-    });
-
-    app.appendChild(frag);
-  })();
-</script>
-
 </body>
 </html>
