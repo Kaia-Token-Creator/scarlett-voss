@@ -103,92 +103,77 @@
     <!-- 2) 이하 이미지 & 광고는 JS가 채움 -->
   </main>
 
-  <script>
-    /**
-     * ⚠️ 이미지 자동 나열 방법
-     * - 같은 폴더(/scarlettvosssecretgallery/)에 `manifest.json` 파일을 두고,
-     *   그 안에 이미지 파일명을 배열로 넣으세요. (예시는 아래)
-     * - 새로운 이미지를 추가할 때 manifest.json만 갱신하면 페이지가 자동으로 업데이트됩니다.
-     *
-     * manifest.json 예시:
-     *   { "images": [
-     *      "001.jpg", "002.jpg", "003.png", "004.webp"
-     *   ]}
-     *
-     * 파일명은 "이름순"으로 정렬합니다(자연정렬). 이미 정렬된 상태로 저장해도 되고,
-     * 아래에서 한 번 더 정렬합니다.
-     */
+<script>
+  // === 광고 설정 (필수) ===
+  const AD_SRC = "//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js";
+  const AD_CONTAINER_BASE_ID = "container-66ed6edc85e36ee723f8c118d340127f";
 
-    // 광고 스니펫들: 대부분의 광고 네트워크는 "각 배치마다 고유한 div id"를 요구합니다.
-    // 현재 네가 준 스니펫은 하나의 zone id를 가리키므로, "여러 개" 삽입하려면
-    // 보통은 광고 플랫폼에서 추가 배치(새 ID)를 발급받아야 한다는 점 참고!
-    // 만약 동일 스니펫을 반복 사용해도 되는 형태라면 아래 배열에 같은 스니펫을 여러 번 넣으면 됩니다.
-    const AD_SNIPPETS = [
-`<script async="async" data-cfasync="false" src="//pl27653747.revenuecpmgate.com/66ed6edc85e36ee723f8c118d340127f/invoke.js"></script>
-<div id="container-66ed6edc85e36ee723f8c118d340127f"></div>`
-    ];
+  // 몇 장마다 광고를 넣을지 (1이면 모든 이미지 사이에 삽입)
+  const AD_EVERY_N_IMAGES = 1;
 
-    // 몇 장마다 광고를 넣을지 (1이면 모든 이미지 사이에 삽입)
-    const AD_EVERY_N_IMAGES = 1;
+  (async function init() {
+    const app = document.getElementById('app');
 
-    // manifest.json을 불러오고, 이미지들을 렌더링
-    (async function init() {
-      const app = document.getElementById('app');
+    let files = [];
+    try {
+      const res = await fetch('./manifest.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error('manifest fetch failed');
+      const data = await res.json();
+      files = Array.isArray(data.images) ? data.images.slice() : [];
+    } catch (e) {
+      console.error('Failed to load manifest.json. Provide /scarlettvosssecretgallery/manifest.json', e);
+    }
 
-      let files = [];
-      try {
-        const res = await fetch('./manifest.json', { cache: 'no-store' });
-        if (!res.ok) throw new Error('manifest fetch failed');
-        const data = await res.json();
-        files = Array.isArray(data.images) ? data.images.slice() : [];
-      } catch (e) {
-        console.error('Failed to load manifest.json. Provide /scarlettvosssecretgallery/manifest.json', e);
-        // 안전한 폴백: manifest 없으면 비우고 조용히 종료
-      }
+    if (!files.length) return;
 
-      if (!files.length) return;
+    const exts = /\.(jpg|jpeg|png|webp|avif|gif)$/i;
+    files = files.filter(name => exts.test(name));
+    files.sort((a,b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
-      // 이미지 확장자만 필터 (jpg/jpeg/png/webp/avif/gif)
-      const exts = /\.(jpg|jpeg|png|webp|avif|gif)$/i;
-      files = files.filter(name => exts.test(name));
+    const frag = document.createDocumentFragment();
 
-      // 이름순(자연 정렬 흉내): 숫자 포함 이름을 올바르게 정렬
-      files.sort((a,b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+    const makeImg = (src) => {
+      const img = document.createElement('img');
+      img.className = 'fullwidth fadein';
+      img.src = `./${encodeURI(src)}`;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.alt = src;
+      return img;
+    };
 
-      // 렌더링: 이미지 1개 -> 광고 1개(설정에 따라) -> 이미지 1개 -> ...
-      const frag = document.createDocumentFragment();
+    // ★ 중요: 문자열로 </script>를 넣지 말고 엘리먼트를 생성하세요.
+    const makeAd = (index) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'ad-wrap';
 
-      const makeImg = (src) => {
-        const img = document.createElement('img');
-        img.className = 'fullwidth fadein';
-        img.src = `./${encodeURI(src)}`;
-        img.loading = 'lazy';
-        img.decoding = 'async';
-        img.alt = src;
-        return img;
-      };
+      // ⚠️ 보통 광고 네트워크는 container id가 "고유"해야 합니다.
+      // 동일 placement를 여러 번 쓰면 하나만 뜰 수 있어요.
+      // 가능하면 네트워크에서 여러 placement/container를 발급받으세요.
+      const container = document.createElement('div');
+      // 고유 id로 바꿔줌 (네트워크가 허용할 때만 다중 게재 가능)
+      container.id = `${AD_CONTAINER_BASE_ID}-${index}`;
+      wrap.appendChild(container);
 
-      const makeAd = (index) => {
-        const adWrap = document.createElement('div');
-        adWrap.className = 'ad-wrap';
-        // 스니펫 순환 사용 (여러 개 발급받았다면 배열에 나열만 해두면 됨)
-        const snippet = AD_SNIPPETS[index % AD_SNIPPETS.length];
-        // 스니펫을 그대로 삽입
-        adWrap.innerHTML = snippet;
-        return adWrap;
-      };
+      const s = document.createElement('script');
+      s.async = true;
+      s.setAttribute('data-cfasync', 'false');
+      s.src = AD_SRC;
+      wrap.appendChild(s);
 
-      files.forEach((name, i) => {
-        // 이미지
-        frag.appendChild(makeImg(name));
+      return wrap;
+    };
 
-        // 광고 (마지막 뒤에는 안 넣고 싶으면 조건을 바꾸세요)
-        const shouldInsertAd = ((i !== files.length - 1) && ((i + 1) % AD_EVERY_N_IMAGES === 0));
-        if (shouldInsertAd) frag.appendChild(makeAd(i));
-      });
+    files.forEach((name, i) => {
+      frag.appendChild(makeImg(name));
 
-      app.appendChild(frag);
-    })();
-  </script>
+      const shouldInsertAd = ((i !== files.length - 1) && ((i + 1) % AD_EVERY_N_IMAGES === 0));
+      if (shouldInsertAd) frag.appendChild(makeAd(i + 1));
+    });
+
+    app.appendChild(frag);
+  })();
+</script>
+
 </body>
 </html>
