@@ -1,7 +1,6 @@
-// /functions/api/image.ts
 // Cloudflare Pages Functions - POST /api/image
+// 항상 "1장"만 생성해서 반환합니다.
 // Body(JSON): { prompt:string, model?:string, width?:number, height?:number, referenceImageData?:string(dataURL) }
-// 항상 "1장만" 생성해서 반환 (data URL 문자열 1개)
 
 export interface Env {
   VENICE_API_KEY: string;
@@ -38,7 +37,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       return json({ ok:false, error:"prompt is required" }, 400, origin);
     }
 
-    const imageModel = (model && String(model).trim()) || "venice-sd35"; // 이미지 가능한 모델
+    // venice-uncensored는 텍스트 모델이므로 이미지 가능한 기본 모델을 사용
+    const imageModel = (model && String(model).trim()) || "venice-sd35";
     const w = Math.max(64, Math.min(Number(width) || 1024, 1536));
     const h = Math.max(64, Math.min(Number(height) || 1024, 1536));
 
@@ -56,7 +56,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         body: JSON.stringify({
           prompt,
           image: base64,
-          // API 스펙에 맞게 필요 시 사이즈/옵션 추가
+          // 필요하면 옵션 추가 (e.g., strength 등)
         }),
       });
 
@@ -75,8 +75,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         width: w,
         height: h,
         format: "webp",
-        variants: 1, // 항상 한 장만
-        // steps: 20, cfg_scale: 7, 등 옵션 필요 시 추가
+        variants: 1, // 한 장만 생성
       };
 
       const res = await fetch(`${VENICE_BASE}/image/generate`, {
@@ -98,7 +97,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         return json({ ok:false, error:"no image returned" }, 502, origin);
       }
 
-      // URL 또는 base64 모두 처리
       const imageDataUrl = first.startsWith("http")
         ? first
         : `data:image/webp;base64,${first}`;
