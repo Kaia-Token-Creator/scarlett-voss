@@ -104,7 +104,7 @@
       <div class="two-col">
         <div>
           <label>Image model</label>
-          <input id="model" type="text" value="lustify-sdxl" />
+          <input id="model" type="text" value="pony-realism" />
         </div>
         <div>
           <label>Rate limit friendly</label>
@@ -236,7 +236,7 @@ form.addEventListener('submit', async (e)=>{
   if (n > 100) n = 100;
 
   const [w,h] = (sizeEl.value || '1024x1024').split('x').map(Number);
-  const model = (modelEl.value || 'lustify-sdxl').trim();
+  const model = (modelEl.value || 'pony-realism').trim();
   const gapMs = parseInt(paceEl.value, 10) || 1500;
 
   runBtn.disabled = true;

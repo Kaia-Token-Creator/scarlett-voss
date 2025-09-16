@@ -38,7 +38,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }
 
     // venice-uncensored는 텍스트 모델이므로 이미지 가능한 기본 모델을 사용
-    const imageModel = (model && String(model).trim()) || "lustify-sdxl";
+    const imageModel = (model && String(model).trim()) || "pony-realism";
     const w = Math.max(64, Math.min(Number(width) || 1024, 1536));
     const h = Math.max(64, Math.min(Number(height) || 1024, 1536));
 
