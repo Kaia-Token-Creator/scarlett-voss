@@ -190,41 +190,6 @@ function addErrorCard(message, index){
 
 async function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-// 2x2 콜라주 감지/분할
-async function splitIfSprite(src){
-  try{
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.decoding = 'async';
-    const loaded = new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
-    img.src = src;
-    await loaded;
-
-    const w = img.naturalWidth, h = img.naturalHeight;
-    const isSquare = Math.abs(w - h) <= 2;
-    const looksLike2x2 = isSquare && w >= 1024 && h >= 1024;
-    if (!looksLike2x2) return [src];
-
-    const cw = Math.floor(w / 2), ch = Math.floor(h / 2);
-    if (cw < 128 || ch < 128) return [src];
-
-    const tiles = [
-      [0, 0], [cw, 0], [0, ch], [cw, ch]
-    ];
-    const outs = [];
-    for (const [sx, sy] of tiles){
-      const c = document.createElement('canvas');
-      c.width = cw; c.height = ch;
-      const g = c.getContext('2d');
-      g.drawImage(img, sx, sy, cw, ch, 0, 0, cw, ch);
-      outs.push(c.toDataURL('image/png'));
-    }
-    return outs;
-  }catch{
-    return [src];
-  }
-}
-
 // 백엔드: 항상 1장만 반환
 async function generateOne({prompt, w, h, model, referenceImageData, signal}){
   const res = await fetch('/api/image', {
@@ -276,8 +241,7 @@ form.addEventListener('submit', async (e)=>{
 
   runBtn.disabled = true;
   setProgress(0);
-  // 새 요청마다 초기화하려면 아래 주석 해제
-  // list.innerHTML = '';
+  // list.innerHTML = ''; // 이전 결과를 지우고 시작하려면 주석 해제
 
   // 참고 이미지 dataURL 준비(선택)
   let referenceImageData = '';
@@ -291,13 +255,8 @@ form.addEventListener('submit', async (e)=>{
     for (let i=0; i<n; i++){
       try{
         const imageData = await generateWithRetry({ prompt, w, h, model, referenceImageData });
-        // 콜라주면 쪼개서 여러 장으로 append
-        const parts = await splitIfSprite(imageData);
-        if (parts.length > 1){
-          parts.forEach((p, k) => addCard(p, `#${i+1}.${k+1}`));
-        }else{
-          addCard(imageData, `#${i+1}`);
-        }
+        // ⚠️ 분할 없음: 받은 걸 그대로 1장으로만 추가
+        addCard(imageData, `#${i+1}`);
       }catch(err){
         console.error(err);
         addErrorCard(err?.message || err, i);
