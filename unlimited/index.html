@@ -272,6 +272,12 @@
       <div class="rules-actions">
         <button id="rulesAgree" class="rules-btn primary" aria-label="Agree to rules">Agree</button>
       </div>
+      <p style="margin-top:10px; text-align:left;">
+  <a href="#" id="rulesExit" style="color:#000; text-decoration:underline; font-size:14px;">
+    I am not an adult. I will leave.
+  </a>
+</p>
+
     </div>
   </div>
 
@@ -491,14 +497,24 @@ function renderPayPalGallery(){
   wrap.dataset.rendered = "1";
 }
 
-/** ------------ Rules Modal: Agree -> close only ------------ **/
+/** ------------ Rules Modal: Agree / Exit -> close ------------ **/
 if (rulesAgree && rulesModal) {
   rulesAgree.addEventListener('click', () => {
     rulesModal.style.display = 'none';
   });
 }
+
+const rulesExit = document.getElementById('rulesExit');
+if (rulesExit && rulesModal) {
+  rulesExit.addEventListener('click', (e) => {
+    e.preventDefault();
+    rulesModal.style.display = 'none';
+  });
+}
 </script>
+
 </body>
 </html>
 ```
+
 
