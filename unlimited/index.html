@@ -273,11 +273,10 @@
         <button id="rulesAgree" class="rules-btn primary" aria-label="Agree to rules">Agree</button>
       </div>
       <p style="margin-top:10px; text-align:left;">
-  <a href="#" id="rulesExit" style="color:#000; text-decoration:underline; font-size:14px;">
-    I am not an adult. I will leave.
-  </a>
-</p>
-
+        <a href="#" id="rulesExit" style="color:#000; text-decoration:underline; font-size:14px;">
+          I am not an adult. I will leave.
+        </a>
+      </p>
     </div>
   </div>
 
@@ -497,10 +496,10 @@ function renderPayPalGallery(){
   wrap.dataset.rendered = "1";
 }
 
-/** ------------ Rules Modal: Agree / Exit -> close ------------ **/
+/** ------------ Rules Modal: Agree / Exit ------------ **/
 if (rulesAgree && rulesModal) {
   rulesAgree.addEventListener('click', () => {
-    rulesModal.style.display = 'none';
+    rulesModal.style.display = 'none'; // 팝업만 닫기
   });
 }
 
@@ -508,13 +507,15 @@ const rulesExit = document.getElementById('rulesExit');
 if (rulesExit && rulesModal) {
   rulesExit.addEventListener('click', (e) => {
     e.preventDefault();
-    rulesModal.style.display = 'none';
+    // 창 닫기 시도
+    window.close();
+    // 대부분의 브라우저에서 스크립트가 연 탭이 아니면 차단되므로 폴백
+    window.location.replace('about:blank');
+    // 극단적 폴백: DOM 비우기 (시각적으로 즉시 이탈)
+    setTimeout(() => { document.body.innerHTML = ""; }, 0);
   });
 }
 </script>
 
 </body>
 </html>
-```
-
-
