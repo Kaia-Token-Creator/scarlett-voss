@@ -240,11 +240,12 @@
       <div class="rules-actions">
         <button id="rulesAgree" class="rules-btn primary" aria-label="Agree to rules">Agree</button>
       </div>
+      <!-- Exit link: try to close window; if blocked, leave to a blank page -->
       <p style="margin-top:10px; text-align:left;">
-  <a href="#" id="rulesExit" style="color:#000; text-decoration:underline; font-size:14px;">
-    I am not an adult. I will leave.
-  </a>
-</p>
+        <a href="#" id="rulesExit" style="color:#000; text-decoration:underline; font-size:14px;">
+          I am not an adult. I will leave.
+        </a>
+      </p>
     </div>
   </div>
 
@@ -439,7 +440,13 @@ function renderPayPal(){
   if (exit && modal) {
     exit.addEventListener('click', (e) => {
       e.preventDefault();
-      modal.style.display = 'none';
+      // 1) 스크립트가 연 탭이라면 닫힘
+      window.close();
+      // 2) 대부분의 브라우저는 위를 막으므로 즉시 빈 페이지로 강제 이탈
+      //    (탭은 남아도 컨텐츠는 사라짐)
+      window.location.replace('about:blank');
+      // 3) 혹시나 replace도 막히면, 마지막 폴백으로 DOM 비우기
+      setTimeout(() => { document.body.innerHTML = ""; }, 0);
     });
   }
 })();
@@ -447,6 +454,3 @@ function renderPayPal(){
 
 </body>
 </html>
-```
-
-
