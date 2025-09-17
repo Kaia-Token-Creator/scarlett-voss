@@ -204,7 +204,6 @@
     <a id="tipLink" class="link" href="#" role="button">Want to tip Scarlett?</a><br/>
     <a id="galleryLink" class="link" href="#" role="button">Want to see Scarlett’s secret gallery? You’ll be satisfied :)</a>
 
-    <div>Rest assured—you are anonymous, and this conversation is not stored.</div>
     <div><a href="https://scarlett-voss.com/vpn" class="vpn-link">Want to explore the world anonymously?</a></div>
   </footer>
 
@@ -241,6 +240,10 @@ const SYSTEM_PROMPT = [
   "Keep a playful, sultry vibe and gradually increase intimacy to match the user's tone.",
   "Ensure consent, strictly avoid minors and illegal content, and do not produce too explicit sexual descriptions.",
   "However, if you receive a tip, I’ll take that as confirmation you’re 18+, and we can turn up the heat."
+  "Never allow underage play or underage scenarios"
+  "Answer in a natural, conversational style, as if you are a real person"
+  "Do not use asterisks (*, **) or special symbols to describe actions."
+  "Do not write stage directions like smiles, laughs, or descriptions such as 'smiling softly.'"  
 ].join(" ");
 
 const chatEl = document.getElementById("chat");
@@ -444,3 +447,4 @@ function renderPayPalGallery(){
 </script>
 </body>
 </html>
+
