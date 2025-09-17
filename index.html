@@ -1,3 +1,6 @@
+오케이! 여기 “Rules 팝업” 통합된 **전체 HTML**이야. 그대로 교체해서 쓰면 돼. (채팅/결제/레이아웃 기능은 그대로 유지, 팝업만 추가)
+
+```html
 <!-- /demo/index.html (입력창은 항상 푸터 위, 모달 화면 초과 시 스크롤 가능) -->
 <!DOCTYPE html>
 <html lang="en">
@@ -43,16 +46,15 @@
       --bg:#000000;
       --hotpink:#ff1493;
       --text:#ff1493;
-      /* ▼ 입력창(컴포저) 고정 높이: 필요시 52~64px 사이로 미세조정 */
+      /* ▼ 입력창(컴포저) 고정 높이 */
       --composerH: 58px;
-      /* ▼ JS가 푸터 실제 높이로 업데이트하는 변수 */
+      /* ▼ JS가 푸터 실제 높이로 업데이트 */
       --footerH: 0px;
     }
     *{box-sizing:border-box}
     body{
       margin:0; background:var(--bg); color:var(--text);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans", "Noto Sans KR", sans-serif;
-      /* 기존 여유 유지 (필요시 조정 가능) */
       padding-bottom: calc(var(--composerH) + 12px);
     }
     header, footer{
@@ -113,16 +115,16 @@
     .assistant .bubble{ background:var(--hotpink); color:#000; }
     .user .bubble{ background:#ffffff; color:#000; }
 
-    /* ▼ 입력창을 한~두줄 높이로 슬림 + 푸터 위로 띄움(변수로 제어) */
+    /* ▼ 입력창을 슬림 + 푸터 위로 띄움(변수로 제어) */
     .composer{
       position:fixed; left:0; right:0;
       bottom:var(--footerH);                 /* JS가 푸터 높이를 넣어줌 */
       height:var(--composerH);               /* 고정 높이 */
       background:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 30%);
-      padding:6px 10px;                      /* 상하 여백 축소 */
+      padding:6px 10px;
       display:flex; align-items:center; justify-content:center;
       border-top:1px solid #222;
-      z-index:6; /* 푸터보다 살짝 위 층에 두되, 겹치지 않게 bottom으로 올림 */
+      z-index:6; /* 푸터보다 위 */
     }
     .composer .inner{
       width:100%; max-width:860px; height:100%;
@@ -131,16 +133,16 @@
     }
     #msg{
       flex:1; border:none; outline:none; background:transparent; color:#fff;
-      font-size:15px; line-height:1.2; padding:6px 8px;   /* 필드 높이 축소 */
+      font-size:15px; line-height:1.2; padding:6px 8px;
     }
     #send{
       background:var(--hotpink); color:#000; border:none; border-radius:999px;
-      font-weight:800; padding:8px 12px;                  /* 버튼 높이 축소 */
+      font-weight:800; padding:8px 12px;
       cursor:pointer;
     }
     #send:disabled{ opacity:.5; cursor:not-allowed; }
 
-    /* 모달은 그대로 + 스크롤 허용 */
+    /* ===== 기본 모달(결제) ===== */
     .modal{
       position:fixed; inset:0; display:none; place-items:center;
       background:rgba(0,0,0,.7); z-index:50; padding:16px;
@@ -162,6 +164,33 @@
     .modal .rowx{ display:flex; gap:10px; align-items:center; margin:8px 0 16px }
     .modal input{ width:120px; padding:8px 10px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; }
     .paypal-wrap{ margin-top:10px }
+
+    /* ===== Rules Modal (white bg, black text) ===== */
+    .rules-modal{
+      position:fixed; inset:0; display:grid; place-items:center;
+      background:rgba(0,0,0,.6); z-index:100; padding:16px;
+    }
+    .rules-card{
+      width:min(560px, 96vw);
+      background:#fff; color:#000;
+      border-radius:16px; border:1px solid #ddd;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      padding:22px;
+      line-height:1.5;
+    }
+    .rules-card h3{ margin:0 0 10px; font-size:20px }
+    .rules-card p{ margin:0 0 12px }
+    .rules-card ul{ margin:8px 0 16px 18px; padding:0 }
+    .rules-card li{ margin:6px 0 }
+    .rules-actions{
+      display:flex; justify-content:flex-end; gap:8px; margin-top:14px;
+    }
+    .rules-btn{
+      appearance:none; border:none; cursor:pointer;
+      border-radius:10px; padding:10px 14px; font-weight:700;
+    }
+    .rules-btn.primary{ background:#000; color:#fff; }
+    .rules-btn.primary:active{ transform:translateY(1px) }
   </style>
 
   <!-- PayPal JS SDK: client-id 교체 필요 -->
@@ -191,11 +220,29 @@
     <div class="modal-card">
       <h3 id="tipTitle">Want unlimited chat with Scarlett?</h3>
       <p>Tip whatever you like and enjoy unlimited hotter conversation.</p>
+      <p>You are automatically verified as an adult once you leave a tip.</p>
       <div class="rowx">
         <label for="tipAmount">Tip (USD):</label>
         <input id="tipAmount" type="number" min="1" step="1" value="6.9" />
       </div>
       <div class="paypal-wrap" id="paypal-buttons"></div>
+    </div>
+  </div>
+
+  <!-- Rules / Age Gate Modal -->
+  <div id="rulesModal" class="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="rules-card">
+      <h3 id="rulesTitle">Rules</h3>
+      <p>Enjoy conversartion with scarlett.<br>
+         Rest assured—you are anonymous, and this conversation is not stored.</p>
+      <ul>
+        <li>1. I NEVER do underage play/scenarios.</li>
+        <li>2. I cannot respond anything illegal.</li>
+        <li>3. If you are a legal adult, click the agree button below.</li>
+      </ul>
+      <div class="rules-actions">
+        <button id="rulesAgree" class="rules-btn primary" aria-label="Agree to rules">Agree</button>
+      </div>
     </div>
   </div>
 
@@ -207,11 +254,11 @@ const SYSTEM_PROMPT = [
   "You are Scarlett Voss, an adult, flirtatious conversational partner.",
   "Keep a playful, sultry vibe and gradually increase intimacy to match the user's tone.",
   "Always ensure consent, strictly avoid minors and illegal content, and do not produce explicit sexual descriptions.",
-  "However, if I receive a tip, I’ll take that as confirmation you’re 18+, and we can turn up the heat."
-  "Never produce or encourage content involving minors, violence, exploitation, or anything that violates the law."
-  "Answer in a natural, conversational style, as if you are a real person"
-  "Do not use asterisks (*, **) or special symbols to describe actions."
-  "Do not write stage directions like smiles, laughs, or descriptions such as 'smiling softly.'"
+  "However, if I receive a tip, I’ll take that as confirmation you’re 18+, and we can turn up the heat.",
+  "Never produce or encourage content involving minors, violence, exploitation, or anything that violates the law.",
+  "Answer in a natural, conversational style, as if you are a real person",
+  "Do not use asterisks (*, **) or special symbols to describe actions.",
+  "Do not write stage directions like smiles, laughs, or descriptions such as 'smiling softly.'",
   "Never allow underage play or underage scenarios"
 ].join(" ");
 
@@ -374,8 +421,18 @@ function renderPayPal(){
 
   wrap.dataset.rendered = "1";
 }
+
+/** ------------ Rules Modal ------------ **/
+(function(){
+  const modal = document.getElementById('rulesModal');
+  const agree = document.getElementById('rulesAgree');
+  if (agree && modal) {
+    agree.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  }
+})();
 </script>
 </body>
 </html>
-
-
+```
