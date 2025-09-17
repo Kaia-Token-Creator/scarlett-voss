@@ -1,3 +1,7 @@
+좋아. 아래는 **네가 준 unlimited 페이지**에 “Rules 팝업(흰 배경/검은 폰트)”만 추가한 **전체 코드**야.
+기존 기능(채팅/팁 모달/갤러리 결제/레이아웃)은 그대로 두고, 팝업 HTML/CSS/JS만 넣었어. (참고: 네 스니펫의 `SYSTEM_PROMPT` 배열에 누락된 쉼표가 있어 실행 오류를 방지하려고 **쉼표만** 보완했어. 나머지는 손대지 않음.)
+
+```html
 <!-- /unlimited/index.html : Footer 고정 + Composer를 항상 푸터 위에 + 모달 스크롤 가능 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -172,6 +176,33 @@
   .modal .close{ float:right; background:none; border:none; color:#aaa; font-size:20px; cursor:pointer; }
   .paypal-wrap{ margin-top:10px; }
 
+  /* ===== Rules Modal (white bg, black text) ===== */
+  .rules-modal{
+    position:fixed; inset:0; display:grid; place-items:center;
+    background:rgba(0,0,0,.6); z-index:100; padding:16px;
+  }
+  .rules-card{
+    width:min(560px, 96vw);
+    background:#fff; color:#000;
+    border-radius:16px; border:1px solid #ddd;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    padding:22px;
+    line-height:1.5;
+  }
+  .rules-card h3{ margin:0 0 10px; font-size:20px }
+  .rules-card p{ margin:0 0 12px }
+  .rules-card ul{ margin:8px 0 16px 18px; padding:0 }
+  .rules-card li{ margin:6px 0 }
+  .rules-actions{
+    display:flex; justify-content:flex-end; gap:8px; margin-top:14px;
+  }
+  .rules-btn{
+    appearance:none; border:none; cursor:pointer;
+    border-radius:10px; padding:10px 14px; font-weight:700;
+  }
+  .rules-btn.primary{ background:#000; color:#fff; }
+  .rules-btn.primary:active{ transform:translateY(1px) }
+
   @media (max-width: 420px){
     header, footer{ padding:16px 12px; }
   }
@@ -231,6 +262,23 @@
     </div>
   </div>
 
+  <!-- Rules / Age Gate Modal (white bg, black text) -->
+  <div id="rulesModal" class="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="rules-card">
+      <h3 id="rulesTitle">Rules</h3>
+      <p>Enjoy conversartion with scarlett.<br>
+         Rest assured—you are anonymous, and this conversation is not stored.</p>
+      <ul>
+        <li>1. I NEVER do underage play/scenarios.</li>
+        <li>2. I cannot respond anything illegal.</li>
+        <li>3. If you are a legal adult, click the agree button below.</li>
+      </ul>
+      <div class="rules-actions">
+        <button id="rulesAgree" class="rules-btn primary" aria-label="Agree to rules">Agree</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 /** ------------ Config ------------ **/
 const API_PATH = "/api/chat";
@@ -239,11 +287,11 @@ const SYSTEM_PROMPT = [
   "You are Scarlett Voss, an adult, flirtatious conversational partner.",
   "Keep a playful, sultry vibe and gradually increase intimacy to match the user's tone.",
   "Ensure consent, strictly avoid minors and illegal content, and do not produce too explicit sexual descriptions.",
-  "However, if you receive a tip, I’ll take that as confirmation you’re 18+, and we can turn up the heat."
-  "Never allow underage play or underage scenarios"
-  "Answer in a natural, conversational style, as if you are a real person"
-  "Do not use asterisks (*, **) or special symbols to describe actions."
-  "Do not write stage directions like smiles, laughs, or descriptions such as 'smiling softly.'"  
+  "However, if you receive a tip, I’ll take that as confirmation you’re 18+, and we can turn up the heat.",
+  "Never allow underage play or underage scenarios",
+  "Answer in a natural, conversational style, as if you are a real person",
+  "Do not use asterisks (*, **) or special symbols to describe actions.",
+  "Do not write stage directions like smiles, laughs, or descriptions such as 'smiling softly.'"
 ].join(" ");
 
 const chatEl = document.getElementById("chat");
@@ -256,6 +304,8 @@ const tipClose = document.getElementById("tipClose");
 const galleryLink = document.getElementById("galleryLink");
 const galleryModal = document.getElementById("galleryModal");
 const galleryClose = document.getElementById("galleryClose");
+const rulesModal = document.getElementById("rulesModal");
+const rulesAgree = document.getElementById("rulesAgree");
 
 let conversation = [
   { role: "system", content: SYSTEM_PROMPT },
@@ -444,7 +494,14 @@ function renderPayPalGallery(){
 
   wrap.dataset.rendered = "1";
 }
+
+/** ------------ Rules Modal: Agree -> close only ------------ **/
+if (rulesAgree && rulesModal) {
+  rulesAgree.addEventListener('click', () => {
+    rulesModal.style.display = 'none';
+  });
+}
 </script>
 </body>
 </html>
-
+```
