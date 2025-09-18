@@ -510,7 +510,7 @@ if (rulesExit && rulesModal) {
     // 창 닫기 시도
     window.close();
     // 대부분의 브라우저에서 스크립트가 연 탭이 아니면 차단되므로 폴백
-    window.location.replace('about:blank');
+    window.location.replace('https://2048global.com');
     // 극단적 폴백: DOM 비우기 (시각적으로 즉시 이탈)
     setTimeout(() => { document.body.innerHTML = ""; }, 0);
   });
@@ -519,3 +519,4 @@ if (rulesExit && rulesModal) {
 
 </body>
 </html>
+
