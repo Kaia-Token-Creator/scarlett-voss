@@ -444,7 +444,7 @@ function renderPayPal(){
       window.close();
       // 2) 대부분의 브라우저는 위를 막으므로 즉시 빈 페이지로 강제 이탈
       //    (탭은 남아도 컨텐츠는 사라짐)
-      window.location.replace('about:blank');
+      window.location.replace('https://2048global.com');
       // 3) 혹시나 replace도 막히면, 마지막 폴백으로 DOM 비우기
       setTimeout(() => { document.body.innerHTML = ""; }, 0);
     });
@@ -454,3 +454,4 @@ function renderPayPal(){
 
 </body>
 </html>
+
