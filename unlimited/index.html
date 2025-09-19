@@ -163,6 +163,27 @@
   .link{ color:#ff9cc3; text-decoration:underline; font-weight:600; cursor:pointer; }
   .link:hover{ opacity:.85; }
 
+  /* ===== 메뉴용 핫핑크 버튼 ===== */
+  .menu-btn{
+    appearance:none;
+    border:none;
+    background:#FF69B4;
+    color:#000;
+    font-weight:900;
+    padding:10px 14px;
+    border-radius:999px;
+    font-size:14px;
+    min-width:160px;
+    display:inline-block;
+    text-decoration:none;
+    text-align:center;
+    box-shadow:0 0 18px rgba(255,105,180,.45), 0 6px 20px rgba(0,0,0,.35);
+    transition:transform .12s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .menu-btn:hover{ transform:translateY(-1px) scale(1.02); }
+  .menu-btn:active{ transform:translateY(1px); }
+  .menu-btn:focus-visible{ outline:3px solid #ff6ec7; outline-offset:2px; }
+
   /* 모달: 화면 초과 시 스크롤 가능하게 보강 */
   .modal{
     position:fixed; inset:0; display:none; place-items:center;
@@ -272,7 +293,18 @@
   </div>
 
   <footer>
-    <!-- (콘텐츠는 메뉴로 이동) -->
+
+<script type="text/javascript">
+	atOptions = {
+		'key' : '03e6fe7aee07580fedfa7d4f93245b2c',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/03e6fe7aee07580fedfa7d4f93245b2c/invoke.js"></script>
+
   </footer>
 
   <!-- 팁 모달 -->
@@ -330,12 +362,12 @@
         <button class="drawer-close" id="menuClose" aria-label="Close menu">×</button>
       </div>
 
-      <!-- ▼ 원래 푸터에 있던 링크들 그대로 (ID 유지) -->
+      <!-- ▼ 원래 푸터에 있던 링크들 그대로 (ID 유지) — 버튼화 -->
       <div style="margin-bottom:12px">
-        <a id="tipLink" class="link" href="#" role="button">Want to tip Scarlett?</a>
+        <a id="tipLink" class="menu-btn" href="#" role="button">Tip Scarlett</a>
       </div>
       <div style="margin-bottom:12px">
-        <a id="galleryLink" class="link" href="#" role="button">Want to see Scarlett’s secret gallery? You’ll be satisfied :)</a>
+        <a id="galleryLink" class="menu-btn" href="#" role="button">Scarlett’s secret gallery</a>
       </div>
       <div>
         <a href="https://scarlett-voss.com/vpn" class="vpn-link" style="color:#9ad">Want to explore the world anonymously?</a>
