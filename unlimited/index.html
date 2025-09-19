@@ -59,7 +59,22 @@
     font-size:clamp(18px,3vw,28px);
     font-weight:700;
     letter-spacing:.3px;
+    position:relative; /* 햄버거 위치 기준 */
   }
+  /* 햄버거 버튼 (핫핑크, 테두리 없음, 굵은 삼선) */
+  .hamburger{
+    position:absolute; right:16px; top:50%; transform:translateY(-50%);
+    width:40px; height:40px; border-radius:10px;
+    border:none; background:transparent; cursor:pointer;
+    display:grid; place-items:center;
+  }
+  .hamburger span{
+    display:block; width:20px; height:4px; background:#FF69B4;
+    border-radius:3px; margin:4px 0;
+    transition:transform .2s ease, opacity .2s ease;
+  }
+  .hamburger:focus-visible{ outline:3px solid #ff6ec7; outline-offset:2px; }
+
   footer{
     color:#ff7abb;
     font-size:14px;
@@ -199,6 +214,30 @@
   .rules-btn.primary{ background:#000; color:#fff; }
   .rules-btn.primary:active{ transform:translateY(1px) }
 
+  /* 햄버거 사이드 메뉴 (우 → 좌) */
+  .drawer{
+    position:fixed; inset:0; display:none; z-index:60;
+  }
+  .drawer.show{ display:block; }
+  .drawer .backdrop{
+    position:absolute; inset:0; background:rgba(0,0,0,.6);
+  }
+  .drawer .panel{
+    position:absolute; right:0; top:0; height:100%;
+    width:min(420px, 92vw); background:#0a0a0a; color:#fff; border-left:1px solid #222;
+    transform:translateX(100%); transition:transform .25s ease;
+    padding:20px; overflow:auto; -webkit-overflow-scrolling:touch;
+  }
+  .drawer.show .panel{ transform:translateX(0%); }
+  .drawer .panel .menu-head{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;
+  }
+  .drawer .panel .menu-title{ font-weight:800; color:#FF69B4; }
+  .drawer-close{
+    width:32px; height:32px; border-radius:999px; border:1px solid #333;
+    background:#111; color:#fff; cursor:pointer; font-weight:900; line-height:1;
+  }
+
   @media (max-width: 420px){
     header, footer{ padding:16px 12px; }
   }
@@ -208,7 +247,13 @@
 <script src="https://www.paypal.com/sdk/js?client-id=AW41UQ3EzJV10FZHqYPy8yqdlDbklB4VjuT6hzu7DVoS-G9cJgKx9nHfxCRZpVSgs1dczhkPj4oM0VXv&currency=USD"></script>
 </head>
 <body>
-  <header>Chat with scarlett</header>
+  <header>
+    Chat with scarlett
+    <!-- 햄버거 버튼 -->
+    <button id="menuToggle" class="hamburger" aria-label="Open menu" aria-controls="sideMenu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
 
   <main class="shell">
     <div class="toolbar">
@@ -227,11 +272,7 @@
   </div>
 
   <footer>
-    <!-- 링크 2개 (모달 오픈) -->
-    <a id="tipLink" class="link" href="#" role="button">Want to tip Scarlett?</a><br/>
-    <a id="galleryLink" class="link" href="#" role="button">Want to see Scarlett’s secret gallery? You’ll be satisfied :)</a>
-
-    <div><a href="https://scarlett-voss.com/vpn" class="vpn-link">Want to explore the world anonymously?</a></div>
+    <!-- (콘텐츠는 메뉴로 이동) -->
   </footer>
 
   <!-- 팁 모달 -->
@@ -279,6 +320,29 @@
       </p>
     </div>
   </div>
+
+  <!-- 오른쪽 슬라이드 메뉴 (푸터 내용 이관) -->
+  <aside id="sideMenu" class="drawer" aria-hidden="true">
+    <div class="backdrop" id="menuBackdrop"></div>
+    <div class="panel" role="dialog" aria-label="Menu">
+      <div class="menu-head">
+        <div class="menu-title">Menu</div>
+        <button class="drawer-close" id="menuClose" aria-label="Close menu">×</button>
+      </div>
+
+      <!-- ▼ 원래 푸터에 있던 링크들 그대로 (ID 유지) -->
+      <div style="margin-bottom:12px">
+        <a id="tipLink" class="link" href="#" role="button">Want to tip Scarlett?</a>
+      </div>
+      <div style="margin-bottom:12px">
+        <a id="galleryLink" class="link" href="#" role="button">Want to see Scarlett’s secret gallery? You’ll be satisfied :)</a>
+      </div>
+      <div>
+        <a href="https://scarlett-voss.com/vpn" class="vpn-link" style="color:#9ad">Want to explore the world anonymously?</a>
+      </div>
+      <!-- ▲ 이 블록 전부 푸터 → 메뉴로 이동 -->
+    </div>
+  </aside>
 
 <script>
 /** ------------ Config ------------ **/
@@ -497,9 +561,10 @@ function renderPayPalGallery(){
 }
 
 /** ------------ Rules Modal: Agree / Exit ------------ **/
+
 if (rulesAgree && rulesModal) {
   rulesAgree.addEventListener('click', () => {
-    rulesModal.style.display = 'none'; // 팝업만 닫기
+    rulesModal.style.display = 'none'; // 페이지 진입
   });
 }
 
@@ -507,16 +572,38 @@ const rulesExit = document.getElementById('rulesExit');
 if (rulesExit && rulesModal) {
   rulesExit.addEventListener('click', (e) => {
     e.preventDefault();
-    // 창 닫기 시도
     window.close();
-    // 대부분의 브라우저에서 스크립트가 연 탭이 아니면 차단되므로 폴백
     window.location.replace('https://2048global.com');
-    // 극단적 폴백: DOM 비우기 (시각적으로 즉시 이탈)
     setTimeout(() => { document.body.innerHTML = ""; }, 0);
   });
 }
+
+/** ------------ 햄버거 사이드 메뉴 ------------ **/
+const sideMenu = document.getElementById("sideMenu");
+const menuToggle = document.getElementById("menuToggle");
+const menuBackdrop = document.getElementById("menuBackdrop");
+const menuClose = document.getElementById("menuClose");
+
+function openMenu(){
+  sideMenu.classList.add("show");
+  sideMenu.setAttribute("aria-hidden","false");
+  menuToggle.setAttribute("aria-expanded","true");
+  document.body.style.overflow = "hidden";
+}
+function closeMenu(){
+  sideMenu.classList.remove("show");
+  sideMenu.setAttribute("aria-hidden","true");
+  menuToggle.setAttribute("aria-expanded","false");
+  document.body.style.overflow = "";
+}
+
+menuToggle?.addEventListener("click", openMenu);
+menuBackdrop?.addEventListener("click", closeMenu);
+menuClose?.addEventListener("click", closeMenu);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && sideMenu.classList.contains("show")) closeMenu();
+});
 </script>
 
 </body>
 </html>
-
