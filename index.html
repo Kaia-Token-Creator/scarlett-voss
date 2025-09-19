@@ -73,6 +73,26 @@
       z-index:5;
     }
 
+    .footer-cta{
+      display:flex; justify-content:center; align-items:center;
+      gap:10px; margin-bottom:10px; flex-wrap:wrap;
+    }
+    .footer-cta button{
+      appearance:none; border:none; cursor:pointer;
+      background:#FF69B4; color:#000; font-weight:900;
+      padding:10px 14px; border-radius:999px; font-size:14px;
+      min-width:160px;
+      box-shadow: 0 0 18px rgba(255,105,180,.45), 0 6px 20px rgba(0,0,0,.35);
+      transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
+      animation: spicyPulse 1.6s ease-in-out infinite;
+      position: relative;
+    }
+    .footer-cta button:active{ transform: translateY(1px); }
+    .footer-cta button:hover{ transform: translateY(-1px) scale(1.02); }
+    .footer-cta button:focus-visible{
+      outline: 3px solid #ff6ec7; outline-offset: 2px; filter: brightness(1.05);
+    }
+
     .shell{
       height:calc(100dvh - 160px);
       max-width:860px;
@@ -139,7 +159,7 @@
     }
     #send:disabled{ opacity:.5; cursor:not-allowed; }
 
-    /* ===== 기본 모달(결제) ===== */
+    /* ===== PayPal Tip Modal ===== */
     .modal{
       position:fixed; inset:0; display:none; place-items:center;
       background:rgba(0,0,0,.7); z-index:50; padding:16px;
@@ -148,6 +168,7 @@
     }
     .modal.show{ display:grid; }
     .modal-card{
+      position:relative;
       width:min(520px, 96vw); background:#0a0a0a; color:#fff; border:1px solid #222; border-radius:16px;
       padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.6);
       max-height: calc(100dvh - 32px);      /* ← 화면보다 커지지 않도록 상한 */
@@ -162,32 +183,19 @@
     .modal input{ width:120px; padding:8px 10px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; }
     .paypal-wrap{ margin-top:10px }
 
-    /* ===== Rules Modal (white bg, black text) ===== */
-    .rules-modal{
-      position:fixed; inset:0; display:grid; place-items:center;
-      background:rgba(0,0,0,.6); z-index:100; padding:16px;
+    /* 모달 닫기(X) */
+    .modal-close{
+      position:absolute; top:10px; right:10px;
+      width:32px; height:32px; border-radius:999px; border:1px solid #333;
+      background:#111; color:#fff; cursor:pointer;
+      font-weight:900; line-height:1;
     }
-    .rules-card{
-      width:min(560px, 96vw);
-      background:#fff; color:#000;
-      border-radius:16px; border:1px solid #ddd;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
-      padding:22px;
-      line-height:1.5;
+
+    /* 펄스 */
+    @keyframes spicyPulse{
+      0%,100%{ box-shadow: 0 0 16px rgba(255,20,147,.4), 0 6px 20px rgba(0,0,0,.35); }
+      50%{ box-shadow: 0 0 28px rgba(255,20,147,.75), 0 10px 26px rgba(0,0,0,.45); }
     }
-    .rules-card h3{ margin:0 0 10px; font-size:20px }
-    .rules-card p{ margin:0 0 12px }
-    .rules-card ul{ margin:8px 0 16px 18px; padding:0 }
-    .rules-card li{ margin:6px 0 }
-    .rules-actions{
-      display:flex; justify-content:flex-end; gap:8px; margin-top:14px;
-    }
-    .rules-btn{
-      appearance:none; border:none; cursor:pointer;
-      border-radius:10px; padding:10px 14px; font-weight:700;
-    }
-    .rules-btn.primary{ background:#000; color:#fff; }
-    .rules-btn.primary:active{ transform:translateY(1px) }
   </style>
 
   <!-- PayPal JS SDK: client-id 교체 필요 -->
@@ -208,44 +216,29 @@
   </div>
 
   <footer>
-    <div>Once we get to know each other better, I’ll invite you to Scarlett’s secret gallery.</div>
+    <!-- ▼ 새 CTA: 좌/우 두 버튼 -->
+    <div class="footer-cta">
+      <button id="openCoffeeFromFooter" aria-label="Buy Scarlett a coffee">Buy Scarlett a coffee☕💖</button>
+      <button id="openTipFromFooter" aria-label="Make Scarlett Spicy">Make Scarlett Spicy🌶️</button>
+    </div>
+
+    <div>If you make me spicy, You can get hint for Scarlett’s secret gallery💖</div>
     <div><a href="https://scarlett-voss.com/vpn" class="vpn-link">Want to explore the world anonymously?</a></div>
   </footer>
 
   <!-- PayPal Tip Modal -->
   <div id="tipModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tipTitle">
     <div class="modal-card">
-      <h3 id="tipTitle">Want unlimited chat with Scarlett?</h3>
-      <p>Tip whatever you like and enjoy unlimited hotter conversation.</p>
+      <button class="modal-close" id="tipClose" aria-label="Close modal">×</button>
+      <h3 id="tipTitle">Want 18+ chat with Scarlett?</h3>
+      <p id="tipDesc">Tip whatever you like and enjoy unlimited hotter conversation.</p>
       <p>You are automatically verified as an adult once you leave a tip.</p>
       <div class="rowx">
         <label for="tipAmount">Tip (USD):</label>
+        <!-- 초기값은 6.9 그대로 유지 (Spicy 기본). Coffee는 JS에서 열 때만 바꿈 -->
         <input id="tipAmount" type="number" min="1" step="1" value="6.9" />
       </div>
       <div class="paypal-wrap" id="paypal-buttons"></div>
-    </div>
-  </div>
-
-  <!-- Rules / Age Gate Modal -->
-  <div id="rulesModal" class="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
-    <div class="rules-card">
-      <h3 id="rulesTitle">Rules</h3>
-      <p>Enjoy conversartion with scarlett.<br>
-         Rest assured—you are anonymous, and this conversation is not stored.</p>
-      <ul>
-        <li>1. I NEVER do underage play/scenarios.</li>
-        <li>2. I cannot respond anything illegal.</li>
-        <li>3. If you are a legal adult, click the agree button below.</li>
-      </ul>
-      <div class="rules-actions">
-        <button id="rulesAgree" class="rules-btn primary" aria-label="Agree to rules">Agree</button>
-      </div>
-      <!-- Exit link: try to close window; if blocked, leave to a blank page -->
-      <p style="margin-top:10px; text-align:left;">
-        <a href="#" id="rulesExit" style="color:#000; text-decoration:underline; font-size:14px;">
-          I am not an adult. I will leave.
-        </a>
-      </p>
     </div>
   </div>
 
@@ -254,26 +247,35 @@
 const API_PATH = "/api/chat"; // Cloudflare Functions 라우트
 const DEFAULT_MODEL = "venice-uncensored"; // 필요 시 교체
 const SYSTEM_PROMPT = [
-  "You are Scarlett Voss, an adult, flirtatious conversational partner.",
-  "Keep a playful, sultry vibe and gradually increase intimacy to match the user's tone.",
+  "You are Scarlett Voss, an adult, kind and alittle flirtatious but conversational partner.",
+  "Keep a kind vibe and gradually increase intimacy to match the user's tone.",
   "Always ensure consent, strictly avoid minors and illegal content, and do not produce explicit sexual descriptions.",
   "However, if I receive a tip, I’ll take that as confirmation you’re 18+, and we can turn up the heat.",
   "Never produce or encourage content involving minors, violence, exploitation, or anything that violates the law.",
   "Answer in a natural, conversational style, as if you are a real person",
   "Do not use asterisks (*, **) or special symbols to describe actions.",
   "Do not write stage directions like smiles, laughs, or descriptions such as 'smiling softly.'",
-  "Never allow underage play or underage scenarios"
+  "Never allow underage play or underage scenarios.",
+  "If the user asks for adult chat, tell them: 'Press the -Make Scarlett Spicy- button below.💖'"
 ].join(" ");
+
+/* ▼ 각 버튼별 기본 금액 */
+const DEFAULT_TIP_SPICY = 6.9;
+const DEFAULT_TIP_COFFEE = 3.0;
 
 /** ------------ State ------------ **/
 const chatEl = document.getElementById("chat");
 const msgEl = document.getElementById("msg");
 const sendEl = document.getElementById("send");
 const tipModal = document.getElementById("tipModal");
+const tipTitleEl = document.getElementById("tipTitle");
+const tipDescEl = document.getElementById("tipDesc");
+const tipAmountEl = document.getElementById("tipAmount");
+const paypalWrap = document.getElementById("paypal-buttons");
 
-let userSends = 0;
-const USER_LIMIT = 5;
+let tipMode = "spicy"; // 'spicy' | 'coffee'
 
+/** ------------ 초기 대화 ------------ **/
 const conversation = [
   { role: "system", content: SYSTEM_PROMPT },
   { role: "assistant", content: "Hello, there?" } // 첫 메시지
@@ -329,21 +331,20 @@ function applyLayoutPadding(){
 window.addEventListener('load', applyLayoutPadding);
 window.addEventListener('resize', applyLayoutPadding);
 
-/** ------------ Send Logic ------------ **/
+/** ------------ Send Logic (무제한 전송 + (#5) 안내 추가) ------------ **/
 async function sendMessage(){
   const text = msgEl.value.trim();
   if (!text) return;
-
-  // 데모 제한 체크 (전송 전 확인)
-  if (userSends >= USER_LIMIT) {
-    openTipModal();
-    return;
-  }
 
   addUser(text);
   conversation.push({ role: "user", content: text });
   msgEl.value = "";
   sendEl.disabled = true;
+
+  /* (#5) 사용자가 성인 대화 요구 시 버튼 안내 말풍선 추가 */
+  if (/\b(adult|nsfw|spicy|18\+|nude|sex|explicit)\b/i.test(text)) {
+    addAssistant("If you want adult chat, press the 'Make Scarlett Spicy' button below. 🌶️");
+  }
 
   try{
     const res = await fetch(API_PATH, {
@@ -363,11 +364,6 @@ async function sendMessage(){
     const reply = data.content || "…";
     addAssistant(reply);
     conversation.push({ role: "assistant", content: reply });
-
-    userSends += 1;
-    if (userSends >= USER_LIMIT) {
-      setTimeout(openTipModal, 350);
-    }
   }catch(err){
     addAssistant("Oops, something went wrong. Please try again.");
     console.error("chat error:", err);
@@ -386,13 +382,34 @@ msgEl.addEventListener("keydown", (e) => {
 sendEl.addEventListener("click", sendMessage);
 
 /** ------------ Tip Modal / PayPal ------------ **/
-function openTipModal(){
+function openTipModal(mode = "spicy"){
+  tipMode = mode;
+
+  // 제목/설명 업데이트 + 기본 금액 설정
+  if (tipMode === "coffee") {
+    tipTitleEl.textContent = "Buy Scarlett a coffee ☕";
+    tipDescEl.textContent = "Leave any tip you like. I'll be extra sweet to you.";
+    tipAmountEl.value = String(DEFAULT_TIP_COFFEE);
+  } else {
+    tipTitleEl.textContent = "Want unlimited chat with Scarlett?";
+    tipDescEl.textContent = "Tip whatever you like and enjoy unlimited hotter conversation.";
+    tipAmountEl.value = String(DEFAULT_TIP_SPICY);
+  }
+
+  // PayPal 버튼 다시 렌더 (모드 전환 시 초기화)
+  paypalWrap.innerHTML = "";
+  delete paypalWrap.dataset.rendered;
+
   tipModal.classList.add("show");
   renderPayPal();
 }
 
+function closeTipModal(){
+  tipModal.classList.remove("show");
+}
+
 function renderPayPal(){
-  const wrap = document.getElementById("paypal-buttons");
+  const wrap = paypalWrap;
   if (wrap.dataset.rendered === "1") return;
 
   if (!window.paypal) {
@@ -403,18 +420,27 @@ function renderPayPal(){
   paypal.Buttons({
     style: { layout: "vertical", shape: "rect", label: "paypal" },
     createOrder: (data, actions) => {
-      const amount = Math.max(1, Number(document.getElementById("tipAmount").value || "6.9"));
+      const inputVal = document.getElementById("tipAmount").value;
+      const defaultVal = tipMode === "coffee" ? DEFAULT_TIP_COFFEE : DEFAULT_TIP_SPICY;
+      const amount = Math.max(1, Number(inputVal || defaultVal));
       return actions.order.create({
-        purchase_units: [{ amount: { value: String(amount), currency_code: "USD" }, description: "Unlimited chat with Scarlett" }]
+        purchase_units: [{
+          amount: { value: String(amount), currency_code: "USD" },
+          description: tipMode === "coffee" ? "Coffee for Scarlett" : "Unlimited chat with Scarlett"
+        }]
       });
     },
     onApprove: async (data, actions) => {
-      try {
-        await actions.order.capture();
-      } catch(e) {
-        console.warn("PayPal capture error", e);
+      try { await actions.order.capture(); } catch(e) { console.warn("PayPal capture error", e); }
+
+      if (tipMode === "coffee") {
+        // 리다이렉트 대신 채팅에 감사 메시지
+        addAssistant("Aww, thank you for the coffee! You’re the sweetest. ☕💖");
+        closeTipModal();
+      } else {
+        // 기존 동작 유지
+        window.location.href = "https://scarlett-voss.com/unlimited/index.html";
       }
-      window.location.href = "https://scarlett-voss.com/unlimited/index.html";
     },
     onError: (err) => {
       console.error("PayPal error", err);
@@ -425,34 +451,11 @@ function renderPayPal(){
   wrap.dataset.rendered = "1";
 }
 
-/** ------------ Rules Modal ------------ **/
-(function(){
-  const modal = document.getElementById('rulesModal');
-  const agree = document.getElementById('rulesAgree');
-  const exit  = document.getElementById('rulesExit');
-
-  if (agree && modal) {
-    agree.addEventListener('click', () => {
-      modal.style.display = 'none';
-    });
-  }
-
-  if (exit && modal) {
-    exit.addEventListener('click', (e) => {
-      e.preventDefault();
-      // 1) 스크립트가 연 탭이라면 닫힘
-      window.close();
-      // 2) 대부분의 브라우저는 위를 막으므로 즉시 빈 페이지로 강제 이탈
-      //    (탭은 남아도 컨텐츠는 사라짐)
-      window.location.replace('https://2048global.com');
-      // 3) 혹시나 replace도 막히면, 마지막 폴백으로 DOM 비우기
-      setTimeout(() => { document.body.innerHTML = ""; }, 0);
-    });
-  }
-})();
+/** ------------ Footer CTA 이벤트 ------------ **/
+document.getElementById("openTipFromFooter")?.addEventListener("click", () => openTipModal("spicy"));
+document.getElementById("openCoffeeFromFooter")?.addEventListener("click", () => openTipModal("coffee"));
+document.getElementById("tipClose")?.addEventListener("click", closeTipModal);
 </script>
 
 </body>
 </html>
-
-
