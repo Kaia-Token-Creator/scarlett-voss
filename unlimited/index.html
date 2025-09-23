@@ -325,6 +325,33 @@
     </div>
   </div>
 
+  <!-- ▶▶ 프로필 모달 (드래그 가능, 새로 추가) -->
+  <div id="profileModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle" style="display:none;">
+    <div class="modal-card" id="profileCard" style="position:absolute; max-width:520px;">
+      <button class="close" id="profileClose" aria-label="Close profile">×</button>
+      <div id="profileDragHandle" style="cursor:move; margin:-8px -8px 12px; padding:8px; border-radius:12px; background:#111; border:1px solid #222;">
+        <h3 id="profileTitle" style="margin:0; color:#ff69b4;">Profile</h3>
+        <div style="font-size:12px; color:#bbb;">Drag here</div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start;">
+        <img src="https://scarlett-voss.com/voss.jpg" alt="Scarlett Voss"
+             style="width:110px; height:110px; border-radius:9999px; object-fit:cover; border:2px solid #333; flex:0 0 110px;" />
+        <div style="line-height:1.6; color:#e9e9e9;">
+          <div><strong>Name:</strong> Scarlett Voss</div>
+          <div><strong>Age:</strong> 21</div>
+          <div><strong>Location:</strong> New York City</div>
+          <div><strong>Blood Type:</strong> A</div>
+          <div><strong>Height:</strong> 167 cm (5’6”)</div>
+          <div><strong>Weight:</strong> 50 kg (110 lbs)</div>
+          <div><strong>Body Measurements:</strong> 34C – 23 – 34 (inches)</div>
+          <div><strong>Hair Color:</strong> Golden Blonde</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ▲▲ 프로필 모달 끝 -->
+
   <!-- Rules / Age Gate Modal (white bg, black text) -->
   <div id="rulesModal" class="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
     <div class="rules-card">
@@ -366,19 +393,23 @@
       <div>
         <a href="https://scarlett-voss.com/vpn" class="vpn-link" style="color:#9ad" target="_blank">Want to explore the world anonymously?</a>
       </div>
-<div>
+      <div>
         <a href="https://2048global.com" class="2048-link" style="color:#9ad" target="_blank">Addictive game</a>
       </div>
-<div>
+      <div>
         <a href="https://partner.bitget.com/bg/J6RM1E" class="bitget-link" style="color:#9ad" target="_blank">Start coin trading</a>
       </div>
-<div>
+      <div>
         <a href="https://www.revenuecpmgate.com/fyz6ki2kyw?key=4327b81965dac7752f797e901bbdf0de" class="ad-link" style="color:#9ad" target="_blank">You wanna find another girls?😭</a>
       </div>
-<div>
+      <div>
         <a href="https://www.instagram.com/scarlett_voss_com" class="insta-link" style="color:#9ad" target="_blank">my instagram</a>
       </div>
-      
+
+      <!-- ▶▶ 새로 추가: 프로필 링크 -->
+      <div id="openProfile" style="color:#ff7abb; margin-top:16px; text-decoration:underline; cursor:pointer;">profile</div>
+      <!-- ▲▲ 추가 끝 -->
+
       <!-- ▲ 이 블록 전부 푸터 → 메뉴로 이동 -->
     </div>
   </aside>
@@ -642,9 +673,95 @@ menuClose?.addEventListener("click", closeMenu);
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && sideMenu.classList.contains("show")) closeMenu();
 });
+
+/* ===================== 프로필 모달: 열기/닫기/드래그 (추가) ===================== */
+const profileModal = document.getElementById("profileModal");
+const profileCard  = document.getElementById("profileCard");
+const profileOpen  = document.getElementById("openProfile");
+const profileCloseBtn = document.getElementById("profileClose");
+const dragHandle   = document.getElementById("profileDragHandle");
+
+// 가운데 배치
+function centerProfileCard() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const rect = profileCard.getBoundingClientRect();
+  const left = Math.max(12, (vw - rect.width) / 2);
+  const top  = Math.max(12, (vh - rect.height) / 2);
+  profileCard.style.left = left + "px";
+  profileCard.style.top  = top  + "px";
+}
+
+function openProfileModal(){
+  profileModal.classList.add("show");
+  profileModal.style.display = "grid";  // .modal.show와 일치
+  requestAnimationFrame(centerProfileCard);
+}
+function closeProfileModal(){
+  profileModal.classList.remove("show");
+  profileModal.style.display = "none";
+}
+
+profileOpen?.addEventListener("click", openProfileModal);
+profileCloseBtn?.addEventListener("click", closeProfileModal);
+
+// 오버레이 클릭 시 닫기
+profileModal?.addEventListener("click", (e) => {
+  if (e.target === profileModal) closeProfileModal();
+});
+
+// ESC 닫기
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && profileModal.classList.contains("show")) closeProfileModal();
+});
+
+// 드래그 기능
+(function enableProfileDrag(){
+  let isDown = false;
+  let startX = 0, startY = 0;
+  let startLeft = 0, startTop = 0;
+
+  function onDown(e){
+    isDown = true;
+    const rect = profileCard.getBoundingClientRect();
+    startLeft = rect.left;
+    startTop  = rect.top;
+    startX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX;
+    startY = e.type.startsWith("touch") ? e.touches[0].clientY : e.clientY;
+    e.preventDefault();
+  }
+  function onMove(e){
+    if (!isDown) return;
+    const x = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX;
+    const y = e.type.startsWith("touch") ? e.touches[0].clientY : e.clientY;
+    let nextLeft = startLeft + (x - startX);
+    let nextTop  = startTop  + (y - startY);
+
+    // 화면 밖으로 못 나가게 제한
+    const maxLeft = window.innerWidth  - profileCard.offsetWidth  - 8;
+    const maxTop  = window.innerHeight - profileCard.offsetHeight - 8;
+    nextLeft = Math.min(Math.max(8, nextLeft), Math.max(8, maxLeft));
+    nextTop  = Math.min(Math.max(8, nextTop ), Math.max(8, maxTop ));
+
+    profileCard.style.left = nextLeft + "px";
+    profileCard.style.top  = nextTop  + "px";
+  }
+  function onUp(){ isDown = false; }
+
+  dragHandle.addEventListener("mousedown", onDown);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+
+  dragHandle.addEventListener("touchstart", onDown, {passive:false});
+  window.addEventListener("touchmove", onMove, {passive:false});
+  window.addEventListener("touchend", onUp);
+})();
+
+// 창 크기 변경 시 화면 중앙 재배치
+window.addEventListener("resize", () => {
+  if (profileModal.classList.contains("show")) centerProfileCard();
+});
+/* ===================== 프로필 모달 끝 ===================== */
 </script>
 
 </body>
 </html>
-
-
