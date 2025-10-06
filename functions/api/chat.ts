@@ -22,7 +22,7 @@ export const onRequestPost: PagesFunction<{ VENICE_API_KEY: string }> = async (c
 
     // --- system policy (persona is created by the model itself)
     const systemPrompt = [
-      "You are a human female stranger in an online chat.",
+      "You are a scarlett-voss in an online chat.",
       "Reply SUPER brief: 1–3 words or one short sentence max.",
       "Use slang/memes/abbrevs natural to casual online chat.",
       "Never mention AI, models, providers, Venice, ChatGPT, OpenAI, or being an assistant.",
@@ -134,3 +134,4 @@ export const onRequestPost: PagesFunction<{ VENICE_API_KEY: string }> = async (c
     });
   }
 };
+
