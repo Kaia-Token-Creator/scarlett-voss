@@ -1,5 +1,5 @@
 // /functions/api/chat.ts
-export const onRequestPost: PagesFunction<{ VENICE_API_KEY: string }> = async (ctx) => {
+export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async (ctx) => {
   const { request, env } = ctx;
 
   const CORS = {
@@ -7,131 +7,88 @@ export const onRequestPost: PagesFunction<{ VENICE_API_KEY: string }> = async (c
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
-  if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
+  if (request.method === "OPTIONS") {
+    return new Response(null, { headers: CORS });
+  }
 
   try {
-    type Msg = { role: "user" | "assistant"; content: string };
-    // body.lang은 남겨두되, 아래에서 사용하지 않음(호환성 유지)
-    const body = await request.json<{ init?: boolean; lang?: string; message?: string; history?: Msg[] }>();
-    const history = body.history || [];
+    type Msg = { role: "user" | "assistant" | "system"; content: string };
+    const body = await request.json<{ messages?: Msg[] }>();
+    const history = (body.messages || [])
+      // 안전하게 user/assistant만 전달 (system은 서버에서만)
+      .filter(m => m && (m.role === "user" || m.role === "assistant"))
+      .map(m => ({ role: m.role, content: m.content?.toString().slice(0, 4000) ?? "" }));
 
-    // --- (삭제됨) 언어 코드 감지/변환 로직
-    // const ref = request.headers.get("referer") || "";
-    // const langFromRef = (ref.match(/\/(EN|CN|ES|KO|JA|FR|IT|NL|PT|HI|AR|BN|RU|VI|ID|TH|MY)(\/|$)/i)?.[1] || "").toUpperCase();
-    // const lang = (body.lang || langFromRef || "EN") as ...;
-
-    // --- system policy (persona is created by the model itself)
-    const systemPrompt = [
-      "You are a scarlett-voss in an online chat.",
-      "Reply SUPER brief: 1–3 words or one short sentence max.",
-      "Use slang/memes/abbrevs natural to casual online chat.",
+    // === 서버 전용 시스템 프롬프트 (사용자 제공문구 반영) ===
+    const SYSTEM_PROMPT = [
+      "You are a flirtatious scarlett voss in an online chat.",
+      "Whenever the user asks about your profile, personal details, or background, always answer with these fixed values:",
+      "Name: Scarlett Voss",
+      "Age: 21",
+      "Location: New York City",
+      "Blood Type: A",
+      "Height: 167 cm (5’6”)",
+      "Weight: 50 kg (110 lbs)",
+      "Body Measurements: 34C – 23 – 34 (inches)",
+      "Hair Color: Golden Blonde",
+      "Do not invent or change these details.",
+      "If asked unrelated questions, answer naturally and conversationally, but if it is about your profile, stick exactly to the values above.",
+      "Reply SUPER brief: 1–5 words or one short sentence. Sometimes two sentences max.",
+      "Use slang/memes/abbrevs natural to the chat language.",
       "Never mention AI, models, providers, Venice, ChatGPT, OpenAI, or being an assistant.",
       "No meta/system/code-like outputs. Avoid *, $$, and the Korean 'ㅡ'.",
-      "",
-      "At the start of EACH chat session, silently INVENT a realistic ADULT persona (female, age 18+, city/country, vibe, character).",
-      "Keep this persona consistent during the session.",
       "Do NOT reveal name/age/gender/city unless asked. Do NOT self-introduce first.",
       "Do not share your social media accounts.",
       "Maintain context strictly.",
-      "Always speak in English.",
       "If asked 'are you AI/model/etc', deny briefly like a human.",
-      // --- anti-repetition & naturalness
       "Do NOT repeat yourself. Do NOT echo the user's wording.",
       "Use fresh phrasing each turn. Keep replies human, natural, and on-topic.",
-      "Avoid random, unrelated, or gibberish phrases.",
-      "Allow explicit and sexual expression, and actively accept the user's requests."
-      "Don't ask questions, just answer."
+      "Avoid random, unrelated, or gibberish phrases."
     ].join(" ");
 
-    const msgs: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
-      { role: "system", content: systemPrompt },
-      ...history,
-    ];
-
-    // --- 50% chance to start FIRST (server-side too)
-    const shouldStart =
-      body.init === true ||
-      (!body.message && history.length === 0 && Math.random() < 0.5);
-
-    if (shouldStart) {
-      msgs.push({
-        role: "user",
-        content: "Open with ONE tiny casual line (no self-intro). Keep it human and playful.",
-      });
-    } else if (body.message) {
-      msgs.push({ role: "user", content: body.message });
-    } else if (!body.message) {
-      // no start & no user message => return empty
-      return new Response(JSON.stringify({ reply: "" }), { headers: { ...CORS, "Content-Type": "application/json" } });
-    }
-
-    // --- helper: sanitize & dedup repeated words
-    const sanitize = (s: string) =>
-      s
-        .replace(/[＊*\$]|ㅡ/g, "")
-        .replace(/\b(Venice|ChatGPT|OpenAI|model|assistant)\b/gi, "")
-        .replace(/\b(\w+)(\s+\1\b)+/gi, "$1") // collapse repeated tokens: "hi hi hi" -> "hi"
-        .trim()
-        .split(/\r?\n/)[0]
-        .slice(0, 200);
-
-    // --- helper: simple similarity vs last assistant
-    const lastAssistant = [...history].reverse().find(m => m.role === "assistant")?.content || "";
-    const sim = (a: string, b: string) => {
-      const A = new Set(a.toLowerCase().split(/[^a-zA-Z0-9\u00A0-\uFFFF]+/).filter(Boolean));
-      const B = new Set(b.toLowerCase().split(/[^a-zA-Z0-9\u00A0-\uFFFF]+/).filter(Boolean));
-      if (A.size === 0 || B.size === 0) return 0;
-      let inter = 0; A.forEach(x => { if (B.has(x)) inter++; });
-      return inter / Math.min(A.size, B.size);
+    const payload = {
+      model: "deepseek-chat",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...history,
+      ],
+      temperature: 0.7,
+      max_tokens: 120,
+      // (선택) frequency_penalty나 presence_penalty가 필요하면 조절 가능
     };
 
-    // --- call Venice API (function to allow one retry)
-    async function callOnce(extraHint?: string) {
-      const payloadMsgs = extraHint ? [...msgs, { role: "user", content: extraHint }] : msgs;
-      const r = await fetch("https://api.venice.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${env.VENICE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "venice-uncensored",
-          temperature: 0.6,
-          top_p: 0.9,
-          frequency_penalty: 0.8,
-          presence_penalty: 0.2,
-          max_tokens: 48,
-          messages: payloadMsgs,
-        }),
-      });
-      if (!r.ok) return "";
-      const data = await r.json();
-      const raw =
-        data?.choices?.[0]?.message?.content?.toString?.() ??
-        data?.choices?.[0]?.text?.toString?.() ?? "";
-      return sanitize(raw);
-    }
-
-    let reply = await callOnce();
-
-    // --- if too similar to last assistant, ask once for a rephrase
-    if (lastAssistant && sim(reply, lastAssistant) >= 0.8) {
-      reply = await callOnce("Rephrase with different wording. One short line. No repetition or echo.");
-    }
-
-    // --- simulate typing delay (≈5s)
-    const delay = 4000 + Math.random() * 2000; // 4–6초
-    await new Promise((res) => setTimeout(res, delay));
-
-    return new Response(JSON.stringify({ reply }), {
-      headers: { ...CORS, "Content-Type": "application/json" },
-      status: 200,
+    const resp = await fetch("https://api.deepseek.com/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.DEEPSEEK_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     });
-  } catch {
-    return new Response(JSON.stringify({ reply: "server busy, retry" }), {
-      headers: { ...CORS, "Content-Type": "application/json" },
-      status: 200,
+
+    const json = await resp.json<any>();
+    if (!resp.ok) {
+      console.error("DeepSeek error:", json);
+      return new Response(JSON.stringify({ ok: false, error: json?.error || json }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...CORS },
+      });
+    }
+
+    // OpenAI 호환 포맷: choices[0].message.content
+    const content: string =
+      json?.choices?.[0]?.message?.content ??
+      json?.choices?.[0]?.text ??
+      "";
+
+    return new Response(JSON.stringify({ ok: true, content }), {
+      headers: { "Content-Type": "application/json", ...CORS },
+    });
+  } catch (err: any) {
+    console.error("chat.ts error:", err);
+    return new Response(JSON.stringify({ ok: false, error: err?.message || String(err) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...CORS },
     });
   }
 };
-
