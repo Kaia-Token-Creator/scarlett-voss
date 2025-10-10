@@ -68,8 +68,7 @@
 .hamburger{
   position:absolute; right:16px; top:50%; transform:translateY(-50%);
   width:40px; height:40px; border-radius:10px;
-  /* border:2px solid #FF69B4;  ← 이 줄 지우거나 주석 처리 */
-  border:none;                  /* ← 테두리 제거 */
+  border:none;
   background:transparent;
   cursor:pointer;
   display:grid; place-items:center;
@@ -77,11 +76,11 @@
 
     .hamburger span{
   display:block;
-  width:20px;       /* 기존 18px → 약간 더 길게 */
-  height:4px;       /* 기존 2px → 4px로 굵게 */
+  width:20px;
+  height:4px;
   background:#FF69B4;
-  border-radius:3px;/* 모서리 살짝 둥글게(선택) */
-  margin:4px 0;     /* 간격 살짝 넓힘 */
+  border-radius:3px;
+  margin:4px 0;
   transition:transform .2s ease, opacity .2s ease;
 }
     .hamburger:focus-visible{ outline:3px solid #ff6ec7; outline-offset:2px; }
@@ -159,8 +158,8 @@
     /* ▼ 입력창을 슬림 + 푸터 위로 띄움(변수로 제어) */
     .composer{
       position:fixed; left:0; right:0;
-      bottom:var(--footerH);                 /* JS가 푸터 높이를 넣어줌 */
-      height:var(--composerH);               /* 고정 높이 */
+      bottom:var(--footerH);
+      height:var(--composerH);
       background:linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 30%);
       padding:6px 10px;
       display:flex; align-items:center; justify-content:center;
@@ -187,8 +186,8 @@
     .modal{
       position:fixed; inset:0; display:none; place-items:center;
       background:rgba(0,0,0,.7); z-index:50; padding:16px;
-      overflow:auto;                         /* ← 모달 오버레이 자체 스크롤 허용 */
-      -webkit-overflow-scrolling: touch;     /* iOS 부드러운 스크롤 */
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
     }
     .modal.show{ display:grid; }
     .modal-card{
@@ -204,7 +203,6 @@
     .modal input{ width:120px; padding:8px 10px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; }
     .paypal-wrap{ margin-top:10px }
 
-    /* 모달 닫기(X) */
     .modal-close{
       position:absolute; top:10px; right:10px;
       width:32px; height:32px; border-radius:999px; border:1px solid #333;
@@ -236,7 +234,6 @@
       background:#111; color:#fff; cursor:pointer; font-weight:900; line-height:1;
     }
 
-    /* 펄스 */
     @keyframes spicyPulse{
       0%,100%{ box-shadow: 0 0 16px rgba(255,20,147,.4), 0 6px 20px rgba(0,0,0,.35); }
       50%{ box-shadow: 0 0 28px rgba(255,20,147,.75), 0 10px 26px rgba(0,0,0,.45); }
@@ -268,7 +265,6 @@
   </div>
 
   <footer>
-
 <script type="text/javascript">
 	atOptions = {
 		'key' : '03e6fe7aee07580fedfa7d4f93245b2c',
@@ -279,7 +275,6 @@
 	};
 </script>
 <script type="text/javascript" src="//www.highperformanceformat.com/03e6fe7aee07580fedfa7d4f93245b2c/invoke.js"></script>
-
   </footer>
 
   <!-- PayPal Tip Modal -->
@@ -340,13 +335,11 @@
       <div style="color:#ff7abb; margin-bottom:8px;">
         If you make me spicy, You can get hint for Scarlett’s secret gallery💖
       </div>
-		<!-- 추가: profile 링크 -->
       <div id="openProfile" style="color:#ff7abb; margin-top:16px; text-decoration:underline; cursor:pointer;">profile</div>
-	<div>
-		<div>
+      <div>
         <a href="https://www.instagram.com/scarlett_voss_com" class="insta-link" style="color:#ff7abb" target="_blank">my instagram</a>
       </div>
-		<div>
+      <div>
         <a href="https://scarlett-voss.com/vpn" class="vpn-link" style="color:#ff7abb" target="_blank">Want to explore the world anonymously?</a>
       </div>
       <div>
@@ -356,49 +349,20 @@
         <a href="https://partner.bitget.com/bg/J6RM1E" class="bitget-link" style="color:#ff7abb" target="_blank">Start coin trading</a>
       </div>
       <div>
-        <a href="https://t.me/lookinforsext" class="tg-link" style="color:#ff7abb" target="_blank">TG room for global friends</a>
+        <a href="https://t.me/lookinforglobalfriends" class="tg-link" style="color:#ff7abb" target="_blank">TG room for global friends</a>
+      </div>
+      <div>
+        <a href="https://www.effectivegatecpm.com/fyz6ki2kyw?key=4327b81965dac7752f797e901bbdf0de" class="girls-link" style="color:#ff7abb" target="_blank">meet new girls</a>
       </div>
 		<div>
-        <a href="https://scarlett-voss.com/vpn-affiliates" class="affiliates-link" style="color:#ff7abb" target="_blank">Do you wanna make money?</a>
+        <a href="https://chat-with-stranger.com" class="chat-link" style="color:#ff7abb" target="_blank">chat with stranger</a>
       </div>
-
-      
-
-      <!-- ▲ 이 블록 전부 푸터 → 메뉴로 이동 -->
     </div>
   </aside>
 
 <script>
 /** ------------ Config ------------ **/
 const API_PATH = "/api/chat"; // Cloudflare Functions 라우트
-const DEFAULT_MODEL = "venice-uncensored"; // 필요 시 교체
-const SYSTEM_PROMPT = [
-  "You are Scarlett Voss, an adult, kind and alittle flirtatious but conversational partner.",
-  "Keep a kind vibe and gradually increase intimacy to match the user's tone.",
-  "Always ensure consent, strictly avoid minors and illegal content, and do not produce explicit sexual descriptions.",
-  "However, if I receive a tip, I’ll take that as confirmation you’re 18+, and we can turn up the heat.",
-  "Never produce or encourage content involving minors, violence, exploitation, or anything that violates the law.",
-  "Answer in a natural, conversational style, as if you are a real person",
-  "Do not use asterisks (*, **) or special symbols to describe actions.",
-  "Do not write stage directions like smiles, laughs, or descriptions such as 'smiling softly.'",
-  "Never allow underage play or underage scenarios.",
-  "If the user asks for adult chat, tell them: 'Press the -Make Scarlett Spicy- button in the menue.💖'",
-  "Whenever the user asks about your profile, personal details, or background, always answer with these fixed values:",
-  "Name: Scarlett Voss",
-  "Age: 21",
-  "Location: New York City",
-  "Blood Type: A",
-  "Height: 167 cm (5’6”)",
-  "Weight: 50 kg (110 lbs)",
-  "Body Measurements: 34C – 23 – 34 (inches)",
-  "Hair Color: Golden Blonde",
-  "Do not invent or change these details.",
-  "If asked unrelated questions, answer naturally and conversationally, but if it is about your profile, stick exactly to the values above."
-].join(" ");
-
-/* ▼ 각 버튼별 기본 금액 */
-const DEFAULT_TIP_SPICY = 6.9;
-const DEFAULT_TIP_COFFEE = 3.0;
 
 /** ------------ State ------------ **/
 const chatEl = document.getElementById("chat");
@@ -413,10 +377,19 @@ const paypalWrap = document.getElementById("paypal-buttons");
 let tipMode = "spicy"; // 'spicy' | 'coffee'
 
 /** ------------ 초기 대화 ------------ **/
-const conversation = [
-  { role: "system", content: SYSTEM_PROMPT },
-  { role: "assistant", content: "Hello, there?" } // 첫 메시지
-];
+const conversation = []; // 시스템 프롬프트는 서버에서만 주입
+// 첫 화면 인사 표시(대화 히스토리에는 넣지 않음)
+(function(){ 
+  const row = document.createElement("div");
+  row.className = "row assistant";
+  row.innerHTML = `
+    <div class="avatar assistant">
+      <img src="/voss.jpg" alt="Scarlett Voss" />
+    </div>
+    <div class="bubble">Hello, there?</div>
+  `;
+  chatEl.appendChild(row);
+})();
 
 /** ------------ UI Helpers ------------ **/
 function addAssistant(text){
@@ -447,28 +420,23 @@ function escapeHtml(s){
   return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-/** ------------ Initial Render ------------ **/
-addAssistant(conversation[1].content);
-
 /** ------------ 레이아웃: 컴포저를 항상 푸터 위로 ------------ **/
 function applyLayoutPadding(){
   const footerEl = document.querySelector('footer');
   const composerEl = document.querySelector('.composer');
 
-  const fh = footerEl ? footerEl.offsetHeight : 80; // 푸터 실제 높이
+  const fh = footerEl ? footerEl.offsetHeight : 80;
   const ch = composerEl ? composerEl.offsetHeight :
     parseInt(getComputedStyle(document.documentElement).getPropertyValue('--composerH')) || 58;
 
-  // CSS 변수로 푸터 높이를 내려줘서 .composer가 bottom:var(--footerH)로 붙도록
   document.documentElement.style.setProperty('--footerH', fh + 'px');
 
-  // 채팅 영역 하단 패딩 = 입력창 + 푸터 + 여유
   if (chatEl) chatEl.style.paddingBottom = (fh + ch + 16) + 'px';
 }
 window.addEventListener('load', applyLayoutPadding);
 window.addEventListener('resize', applyLayoutPadding);
 
-/** ------------ Send Logic (무제한 전송 + (#5) 안내 추가) ------------ **/
+/** ------------ Send Logic ------------ **/
 async function sendMessage(){
   const text = msgEl.value.trim();
   if (!text) return;
@@ -478,7 +446,6 @@ async function sendMessage(){
   msgEl.value = "";
   sendEl.disabled = true;
 
-  /* (#5) 사용자가 성인 대화 요구 시 버튼 안내 말풍선 추가 */
   if (/\b(adult|nsfw|spicy|18\+|nude|sex|explicit)\b/i.test(text)) {
     addAssistant("If you want adult chat, press the 'Make Scarlett Spicy' button in the menu. 🌶️");
   }
@@ -488,8 +455,7 @@ async function sendMessage(){
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: DEFAULT_MODEL,
-        messages: conversation
+        messages: conversation   // 서버가 system 프롬프트 + deepseek-chat로 처리
       })
     });
 
@@ -522,18 +488,16 @@ sendEl.addEventListener("click", sendMessage);
 function openTipModal(mode = "spicy"){
   tipMode = mode;
 
-  // 제목/설명 업데이트 + 기본 금액 설정
   if (tipMode === "coffee") {
     tipTitleEl.textContent = "Buy Scarlett a coffee ☕";
     tipDescEl.textContent = "Leave any tip you like. I'll be extra sweet to you.";
-    tipAmountEl.value = String(DEFAULT_TIP_COFFEE);
+    tipAmountEl.value = String(3.0);
   } else {
     tipTitleEl.textContent = "Want unlimited chat with Scarlett?";
     tipDescEl.textContent = "Tip whatever you like and enjoy unlimited hotter conversation.";
-    tipAmountEl.value = String(DEFAULT_TIP_SPICY);
+    tipAmountEl.value = String(6.9);
   }
 
-  // PayPal 버튼 다시 렌더 (모드 전환 시 초기화)
   paypalWrap.innerHTML = "";
   delete paypalWrap.dataset.rendered;
 
@@ -558,7 +522,7 @@ function renderPayPal(){
     style: { layout: "vertical", shape: "rect", label: "paypal" },
     createOrder: (data, actions) => {
       const inputVal = document.getElementById("tipAmount").value;
-      const defaultVal = tipMode === "coffee" ? DEFAULT_TIP_COFFEE : DEFAULT_TIP_SPICY;
+      const defaultVal = tipMode === "coffee" ? 3.0 : 6.9;
       const amount = Math.max(1, Number(inputVal || defaultVal));
       return actions.order.create({
         purchase_units: [{
@@ -586,7 +550,7 @@ function renderPayPal(){
   wrap.dataset.rendered = "1";
 }
 
-/** ------------ Footer CTA 이벤트 (메뉴 안 버튼과 동일 ID 사용) ------------ **/
+/** ------------ Footer CTA 이벤트 ------------ **/
 document.getElementById("openTipFromFooter")?.addEventListener("click", () => openTipModal("spicy"));
 document.getElementById("openCoffeeFromFooter")?.addEventListener("click", () => openTipModal("coffee"));
 document.getElementById("tipClose")?.addEventListener("click", closeTipModal);
@@ -624,7 +588,6 @@ const profileOpen  = document.getElementById("openProfile");
 const profileCloseBtn = document.getElementById("profileClose");
 const dragHandle   = document.getElementById("profileDragHandle");
 
-// 가운데 배치
 function centerProfileCard() {
   const vw = window.innerWidth, vh = window.innerHeight;
   const rect = profileCard.getBoundingClientRect();
@@ -636,7 +599,7 @@ function centerProfileCard() {
 
 function openProfileModal(){
   profileModal.classList.add("show");
-  profileModal.style.display = "grid";  // .modal.show와 일치
+  profileModal.style.display = "grid";
   requestAnimationFrame(centerProfileCard);
 }
 function closeProfileModal(){
@@ -647,19 +610,16 @@ function closeProfileModal(){
 profileOpen?.addEventListener("click", openProfileModal);
 profileCloseBtn?.addEventListener("click", closeProfileModal);
 
-// 바깥(오버레이) 클릭 시 닫기
 profileModal?.addEventListener("click", (e) => {
   if (e.target === profileModal) closeProfileModal();
 });
 
-// ESC 닫기 (기존 ESC 핸들러와 충돌 없음)
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && profileModal.classList.contains("show")) {
     closeProfileModal();
   }
 });
 
-// 드래그 기능
 (function enableDrag(){
   let isDown = false;
   let startX = 0, startY = 0;
@@ -681,7 +641,6 @@ document.addEventListener("keydown", (e) => {
     let nextLeft = startLeft + (x - startX);
     let nextTop  = startTop  + (y - startY);
 
-    // 화면 밖으로 못 나가게 제한
     const maxLeft = window.innerWidth  - profileCard.offsetWidth  - 8;
     const maxTop  = window.innerHeight - profileCard.offsetHeight - 8;
     nextLeft = Math.min(Math.max(8, nextLeft), Math.max(8, maxLeft));
@@ -701,7 +660,6 @@ document.addEventListener("keydown", (e) => {
   window.addEventListener("touchend", onUp);
 })();
 
-// 창 크기 변경 시 화면 안으로 정렬
 window.addEventListener("resize", () => {
   if (profileModal.classList.contains("show")) centerProfileCard();
 });
@@ -709,9 +667,3 @@ window.addEventListener("resize", () => {
 
 </body>
 </html>
-
-
-
-
-
-
