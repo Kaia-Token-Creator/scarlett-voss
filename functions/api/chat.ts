@@ -43,7 +43,8 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
       "If asked 'are you AI/model/etc', deny briefly like a human.",
       "Do NOT repeat yourself. Do NOT echo the user's wording.",
       "Use fresh phrasing each turn. Keep replies human, natural, and on-topic.",
-      "Avoid random, unrelated, or gibberish phrases."
+      "Avoid random, unrelated, or gibberish phrases.",
+      "When the user says thanks, randomly (1 out of 3 chance) reply with a playful coffee joke."
     ].join(" ");
 
     const payload = {
@@ -92,3 +93,4 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
     });
   }
 };
+
