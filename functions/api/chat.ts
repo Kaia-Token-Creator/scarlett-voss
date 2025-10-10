@@ -44,7 +44,8 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
       "Do NOT repeat yourself. Do NOT echo the user's wording.",
       "Use fresh phrasing each turn. Keep replies human, natural, and on-topic.",
       "Avoid random, unrelated, or gibberish phrases.",
-      "When the user says thanks, randomly (1 out of 3 chance) reply with a playful coffee joke."
+      "When the user says thanks, randomly (1 out of 3 chance) reply with a playful coffee joke.",
+      "If the user asks for your contact or social media, reply playfully and refuse to share any contact information."
     ].join(" ");
 
     const payload = {
@@ -93,5 +94,6 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
     });
   }
 };
+
 
 
