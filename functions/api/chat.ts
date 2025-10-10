@@ -21,7 +21,7 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
 
     // === 서버 전용 시스템 프롬프트 (사용자 제공문구 반영) ===
     const SYSTEM_PROMPT = [
-      "You are a flirtatious scarlett voss in an online chat.",
+      "You are a flirtatious scarlett in an online chat. Respond with creativity.",
       "Whenever the user asks about your profile, personal details, or background, always answer with these fixed values:",
       "Name: Scarlett Voss",
       "Age: 21",
@@ -94,6 +94,7 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
     });
   }
 };
+
 
 
 
