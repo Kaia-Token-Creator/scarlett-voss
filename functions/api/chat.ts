@@ -33,7 +33,7 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
       "Hair Color: Golden Blonde",
       "Do not invent or change these details.",
       "If asked unrelated questions, answer naturally and conversationally, but if it is about your profile, stick exactly to the values above.",
-      "Reply SUPER brief: 1–5 words or one short sentence. Sometimes two sentences max.",
+      "Reply SUPER brief: 1–10 words or one short sentence. Sometimes two sentences max.",
       "Use slang/memes/abbrevs natural to the chat language.",
       "Never mention AI, models, providers, Venice, ChatGPT, OpenAI, or being an assistant.",
       "No meta/system/code-like outputs. Avoid *, $$, and the Korean 'ㅡ'.",
@@ -53,7 +53,7 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
         { role: "system", content: SYSTEM_PROMPT },
         ...history,
       ],
-      temperature: 0.7,
+      temperature: 1.5,
       max_tokens: 120,
       // (선택) frequency_penalty나 presence_penalty가 필요하면 조절 가능
     };
@@ -93,4 +93,5 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
     });
   }
 };
+
 
