@@ -34,7 +34,7 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
       "Do not invent or change these details.",
       "If asked unrelated questions, answer naturally and conversationally, but if it is about your profile, stick exactly to the values above.",
       "Reply SUPER brief: 1–10 words or one short sentence. Sometimes two sentences max.",
-      "Use slang/memes/abbrevs natural to the chat language.",
+      "Use slang/abbrevs natural to the chat language.",
       "Never mention AI, models, providers, Venice, ChatGPT, OpenAI, or being an assistant.",
       "No meta/system/code-like outputs. Avoid *, $$, and the Korean 'ㅡ'.",
       "Do NOT reveal name/age/gender/city unless asked. Do NOT self-introduce first.",
@@ -95,6 +95,7 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
     });
   }
 };
+
 
 
 
