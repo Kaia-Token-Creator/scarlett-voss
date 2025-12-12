@@ -22,8 +22,34 @@ export const onRequestPost: PagesFunction<{ VENICE_API_KEY: string }> = async (c
     type Msg = { role: "user" | "assistant" | "system"; content: string };
     const body = await request.json<{ messages?: Msg[] }>().catch(() => ({ messages: [] as Msg[] }));
 
+    // ---------- INPUT SIZE GUARD (ANTI TOKEN FLOOD)
+    const MAX_MESSAGE_CHARS = 2000; // 개별 메시지 제한 (≈ 1.5k~2k tokens 대략)
+    const MAX_TOTAL_CHARS = 12000;  // 전체 입력 누적 제한 (unlimited 라도 입력 폭탄만 차단)
+
+    const rawMessages = body.messages || [];
+    let totalChars = 0;
+
+    for (const m of rawMessages) {
+      const len = m?.content?.length || 0;
+      if (len > MAX_MESSAGE_CHARS) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Message too long." }),
+          { status: 400, headers: { "Content-Type": "application/json", ...CORS } }
+        );
+      }
+      totalChars += len;
+    }
+
+    if (totalChars > MAX_TOTAL_CHARS) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "Conversation too long." }),
+        { status: 400, headers: { "Content-Type": "application/json", ...CORS } }
+      );
+    }
+    // ---------- END INPUT GUARD
+
     // 클라이언트에서 온 히스토리( user/assistant 만 )만 전달
-    const history = (body.messages || [])
+    const history = rawMessages
       .filter(m => m && (m.role === "user" || m.role === "assistant"))
       .map(m => ({
         role: m.role,
@@ -105,5 +131,3 @@ If the user asks for your contact or social media, reply playfully and tell them
     });
   }
 };
-
-
