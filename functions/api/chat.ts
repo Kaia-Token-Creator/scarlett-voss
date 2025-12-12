@@ -14,7 +14,34 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
   try {
     type Msg = { role: "user" | "assistant" | "system"; content: string };
     const body = await request.json<{ messages?: Msg[] }>();
-    const history = (body.messages || [])
+
+    // ---------- INPUT SIZE GUARD (ANTI TOKEN FLOOD)
+    const MAX_MESSAGE_CHARS = 2000; // 개별 메시지 제한 (≈ 1.5k~2k tokens)
+    const MAX_TOTAL_CHARS = 8000;   // 전체 입력 누적 제한
+
+    const rawMessages = body.messages || [];
+
+    let totalChars = 0;
+    for (const m of rawMessages) {
+      const len = m?.content?.length || 0;
+      if (len > MAX_MESSAGE_CHARS) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Message too long." }),
+          { status: 400, headers: { "Content-Type": "application/json", ...CORS } }
+        );
+      }
+      totalChars += len;
+    }
+
+    if (totalChars > MAX_TOTAL_CHARS) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "Conversation too long." }),
+        { status: 400, headers: { "Content-Type": "application/json", ...CORS } }
+      );
+    }
+    // ---------- END INPUT GUARD
+
+    const history = rawMessages
       // 안전하게 user/assistant만 전달 (system은 서버에서만)
       .filter(m => m && (m.role === "user" || m.role === "assistant"))
       .map(m => ({ role: m.role, content: m.content?.toString().slice(0, 4000) ?? "" }));
@@ -57,7 +84,6 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
       ],
       temperature: 1.5,
       max_tokens: 120,
-      // (선택) frequency_penalty나 presence_penalty가 필요하면 조절 가능
     };
 
     const resp = await fetch("https://api.deepseek.com/chat/completions", {
@@ -78,7 +104,6 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
       });
     }
 
-    // OpenAI 호환 포맷: choices[0].message.content
     const content: string =
       json?.choices?.[0]?.message?.content ??
       json?.choices?.[0]?.text ??
@@ -95,9 +120,3 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
     });
   }
 };
-
-
-
-
-
-
