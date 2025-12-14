@@ -213,33 +213,6 @@
   .modal .close{ float:right; background:none; border:none; color:#aaa; font-size:20px; cursor:pointer; }
   .paypal-wrap{ margin-top:10px; }
 
-  /* ===== Rules Modal (white bg, black text) ===== */
-  .rules-modal{
-    position:fixed; inset:0; display:grid; place-items:center;
-    background:rgba(0,0,0,.6); z-index:100; padding:16px;
-  }
-  .rules-card{
-    width:min(560px, 96vw);
-    background:#fff; color:#000;
-    border-radius:16px; border:1px solid #ddd;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-    padding:22px;
-    line-height:1.5;
-  }
-  .rules-card h3{ margin:0 0 10px; font-size:20px }
-  .rules-card p{ margin:0 0 12px }
-  .rules-card ul{ margin:8px 0 16px 18px; padding:0 }
-  .rules-card li{ margin:6px 0 }
-  .rules-actions{
-    display:flex; justify-content:flex-end; gap:8px; margin-top:14px;
-  }
-  .rules-btn{
-    appearance:none; border:none; cursor:pointer;
-    border-radius:10px; padding:10px 14px; font-weight:700;
-  }
-  .rules-btn.primary{ background:#000; color:#fff; }
-  .rules-btn.primary:active{ transform:translateY(1px) }
-
   /* 햄버거 사이드 메뉴 (우 → 좌) */
   .drawer{
     position:fixed; inset:0; display:none; z-index:60;
@@ -324,28 +297,6 @@
     </div>
   </div>
 
-  <!-- Rules / Age Gate Modal (white bg, black text) -->
-  <div id="rulesModal" class="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
-    <div class="rules-card">
-      <h3 id="rulesTitle">Rules</h3>
-      <p>Enjoy conversartion with scarlett.<br>
-         Rest assured—you are anonymous, and this conversation is not stored.</p>
-      <ul>
-        <li>1. I NEVER do underage play/scenarios.</li>
-        <li>2. I cannot respond anything illegal.</li>
-        <li>3. If you are a legal adult, click the agree button below.</li>
-      </ul>
-      <div class="rules-actions">
-        <button id="rulesAgree" class="rules-btn primary" aria-label="Agree to rules">Agree</button>
-      </div>
-      <p style="margin-top:10px; text-align:left;">
-        <a href="#" id="rulesExit" style="color:#000; text-decoration:underline; font-size:14px;">
-          I am not an adult. I will leave.
-        </a>
-      </p>
-    </div>
-  </div>
-
   <!-- 오른쪽 슬라이드 메뉴 (푸터 내용 이관) -->
   <aside id="sideMenu" class="drawer" aria-hidden="true">
     <div class="backdrop" id="menuBackdrop"></div>
@@ -397,8 +348,6 @@ const tipClose = document.getElementById("tipClose");
 const galleryLink = document.getElementById("galleryLink");
 const galleryModal = document.getElementById("galleryModal");
 const galleryClose = document.getElementById("galleryClose");
-const rulesModal = document.getElementById("rulesModal");
-const rulesAgree = document.getElementById("rulesAgree");
 
 /* 클라이언트엔 시스템 프롬프트/모델 없음 */
 let conversation = [];
@@ -583,24 +532,6 @@ function renderPayPalGallery(){
   wrap.dataset.rendered = "1";
 }
 
-/** ------------ Rules Modal: Agree / Exit ------------ **/
-
-if (rulesAgree && rulesModal) {
-  rulesAgree.addEventListener('click', () => {
-    rulesModal.style.display = 'none'; // 페이지 진입
-  });
-}
-
-const rulesExit = document.getElementById('rulesExit');
-if (rulesExit && rulesModal) {
-  rulesExit.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.close();
-    window.location.replace('https://2048global.com');
-    setTimeout(() => { document.body.innerHTML = ""; }, 0);
-  });
-}
-
 /** ------------ 햄버거 사이드 메뉴 ------------ **/
 const sideMenu = document.getElementById("sideMenu");
 const menuToggle = document.getElementById("menuToggle");
@@ -630,5 +561,3 @@ document.addEventListener("keydown", (e) => {
 
 </body>
 </html>
-
-
