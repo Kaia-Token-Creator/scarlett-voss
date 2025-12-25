@@ -400,9 +400,11 @@ function applyLayoutPadding(){
 }
 window.addEventListener('load', applyLayoutPadding);
 window.addEventListener('resize', applyLayoutPadding);
-// 푸터 높이가 동적으로 바뀔 때(광고 로드 등) 자동 반영
-if ('ResizeObserver' in window) {
-  new ResizeObserver(applyLayoutPadding).observe(document.querySelector('footer'));
+
+// ✅ FIX: footer가 없을 수 있으니 null 가드 (여기만 수정)
+const __footerForRO = document.querySelector('footer');
+if ('ResizeObserver' in window && __footerForRO) {
+  new ResizeObserver(applyLayoutPadding).observe(__footerForRO);
 }
 
 /** ------------ Send Logic (Unlimited) ------------ **/
@@ -560,4 +562,3 @@ document.addEventListener("keydown", (e) => {
 
 </body>
 </html>
-
