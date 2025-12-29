@@ -276,7 +276,8 @@
       <button class="modal-close" id="tipClose" aria-label="Close modal">×</button>
       <h3 id="tipTitle">Want 18+ chat with Scarlett?</h3>
       <p id="tipDesc">Tip whatever you like and enjoy unlimited hotter conversation.</p>
-		<p>Once you pay, you get a permanent link.</p>
+		<p>Once you pay, you get a permanent link and can chat unlimited times.</p>
+		<p>Don't worry, it will appear as 'practice language' on the payment statement.</p>
       <p>You are automatically verified as an adult once you leave a tip.</p>
 		<p>You're going to love it. I swear.</p>
       <div class="rowx">
@@ -522,7 +523,7 @@ function renderPayPal(){
       return actions.order.create({
         purchase_units: [{
           amount: { value: String(amount), currency_code: "USD" },
-          description: tipMode === "coffee" ? "Coffee for Scarlett" : "Unlimited chat with Scarlett"
+          description: tipMode === "coffee" ? "Coffee for Scarlett" : "Practice language"
         }]
       });
     },
@@ -671,6 +672,7 @@ window.addEventListener("resize", () => {
 
 </body>
 </html>
+
 
 
 
