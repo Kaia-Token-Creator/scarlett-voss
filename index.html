@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	
-<script>(function(s){s.dataset.zone='10322128',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>	
+<script>(function(s){s.dataset.zone='10322128',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>	 
 <script src="https://3nbf4.com/act/files/tag.min.js?z=10322042" data-cfasync="false" async></script>
 	
   <!-- Google tag (gtag.js) -->
@@ -257,7 +257,6 @@
     </button>
   </header>
 
-
   <main class="shell">
     <section id="chat" class="chat" aria-live="polite"></section>
   </main>
@@ -269,17 +268,22 @@
     </div>
   </div>
 
-  
   <!-- PayPal Tip Modal -->
   <div id="tipModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tipTitle">
     <div class="modal-card">
       <button class="modal-close" id="tipClose" aria-label="Close modal">×</button>
       <h3 id="tipTitle">Want 18+ chat with Scarlett?</h3>
-      <p id="tipDesc">Tip whatever you like and enjoy unlimited hotter conversation.</p>
-		<p>Once you pay, you get a permanent link and can chat unlimited times.</p>
-		<p>Don't worry, it will appear as 'practice language' on the payment statement.</p>
-      <p>You are automatically verified as an adult once you leave a tip.</p>
-		<p>You're going to love it. Enjoy right now.</p>
+
+      <p id="tipDesc">Tip only 6.9$ and Enjoy unlimited hotter conversation.</p>
+
+      <!-- ✅ spicy일 때만 보여줄 문단들: 기존 문구 그대로 + 감싸기만 추가 -->
+      <div id="tipExtra" style="display:block;">
+        <p>Once you pay, you get a permanent link and can chat unlimited times.</p>
+        <p>Don't worry, it will appear as 'practice language' on the payment statement.</p>
+        <p>You are automatically verified as an adult once you leave a tip.</p>
+        <p>You're going to love it. Enjoy right now.</p>
+      </div>
+
       <div class="rowx">
         <label for="tipAmount">Tip (USD):</label>
         <input id="tipAmount" type="number" min="1" step="1" value="6.9" />
@@ -367,6 +371,7 @@ const sendEl = document.getElementById("send");
 const tipModal = document.getElementById("tipModal");
 const tipTitleEl = document.getElementById("tipTitle");
 const tipDescEl = document.getElementById("tipDesc");
+const tipExtraEl = document.getElementById("tipExtra"); // ✅ 추가 (spicy용 문단 컨테이너)
 const tipAmountEl = document.getElementById("tipAmount");
 const paypalWrap = document.getElementById("paypal-buttons");
 
@@ -488,10 +493,22 @@ function openTipModal(mode = "spicy"){
     tipTitleEl.textContent = "Buy Scarlett a coffee ☕";
     tipDescEl.textContent = "Leave any tip you like. I'll be extra sweet to you.";
     tipAmountEl.value = String(3.0);
+
+    // ✅ coffee는 자유 입력 (선택사항 반영)
+    tipAmountEl.disabled = false;
+
+    // ✅ coffee일 때는 아래 4개 문단 숨김
+    if (tipExtraEl) tipExtraEl.style.display = "none";
   } else {
     tipTitleEl.textContent = "Want sex chat with Scarlett?";
-    tipDescEl.textContent = "Tip whatever you like and enjoy unlimited hotter conversation.";
+    tipDescEl.textContent = "Tip only 6.9$ and Enjoy unlimited hotter conversation.";
     tipAmountEl.value = String(6.9);
+
+    // ✅ spicy는 6.9 고정 + 입력 비활성화 (선택사항 반영)
+    tipAmountEl.disabled = true;
+
+    // ✅ spicy일 때만 아래 4개 문단 노출
+    if (tipExtraEl) tipExtraEl.style.display = "block";
   }
 
   paypalWrap.innerHTML = "";
@@ -517,15 +534,27 @@ function renderPayPal(){
   paypal.Buttons({
     style: { layout: "vertical", shape: "rect", label: "paypal" },
     createOrder: (data, actions) => {
-      const inputVal = document.getElementById("tipAmount").value;
-      const defaultVal = tipMode === "coffee" ? 3.0 : 6.9;
-      const amount = Math.max(1, Number(inputVal || defaultVal));
-      return actions.order.create({
-        purchase_units: [{
-          amount: { value: String(amount), currency_code: "USD" },
-          description: tipMode === "coffee" ? "Coffee for Scarlett" : "Practice language"
-        }]
-      });
+      // ✅ coffee는 자유, spicy는 무조건 6.9 고정
+      let amount;
+
+      if (tipMode === "coffee") {
+        const inputVal = document.getElementById("tipAmount").value;
+        amount = Math.max(1, Number(inputVal || 3.0));
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: String(amount), currency_code: "USD" },
+            description: "Coffee for Scarlett"
+          }]
+        });
+      } else {
+        amount = 6.9;
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: amount.toFixed(2), currency_code: "USD" },
+            description: "Practice language"
+          }]
+        });
+      }
     },
     onApprove: async (data, actions) => {
       try { await actions.order.capture(); } catch(e) { console.warn("PayPal capture error", e); }
@@ -661,8 +690,8 @@ window.addEventListener("resize", () => {
 });
 </script>
 
-	<footer style="text-align:center;">
-		<a href="https://chat-with-stranger.com" target="_blank" rel="noopener" style="color:#ff1493;">
+<footer style="text-align:center;">
+  <a href="https://chat-with-stranger.com" target="_blank" rel="noopener" style="color:#ff1493;">
     chat with stranger
   </a><br>
   <a href="https://2048global.com/vpn" target="_blank" rel="noopener" style="color:#ff1493;">
@@ -672,20 +701,3 @@ window.addEventListener("resize", () => {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
