@@ -77,7 +77,7 @@ export const onRequestPost: PagesFunction<{ DEEPSEEK_API_KEY: string }> = async 
     ].join(" ");
 
     const payload = {
-      model: "deepseek-chat",
+      model: "deepseek-v4-flash",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         ...history,
